@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
+using System.Timers;
 
 namespace My_2019_AS_Res
 {
@@ -20,19 +21,26 @@ namespace My_2019_AS_Res
         public Texture2D BottomBorder;
         public Texture2D LeftBorder;
         public Texture2D RightBorder;
+        public Texture2D CoverSquare;
+        Texture Marker;
         Texture2D WH, WL, BH, BL;
         Texture2D pixel;
         //Vectors
-
+        Vector2 MousePos, CounterPos;
         //Form the Grid
         const int rows = 8;
         const int cols = 8;
         bool[,] background = new bool[rows, cols];
+        //States
+        //Timers
+        Timer Halt = new System.Timers.Timer();
+        KeyboardState current = Keyboard.GetState();
 
         Board Grid = new Board();
 
         public Game1()
         {
+            IsMouseVisible = true;
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             graphics.PreferredBackBufferHeight = 900;
@@ -69,6 +77,8 @@ namespace My_2019_AS_Res
             WL = Content.Load<Texture2D>("White Lower");
             BH = Content.Load<Texture2D>("Black Higher");
             BL = Content.Load<Texture2D>("Black Lower");
+            CoverSquare = Content.Load<Texture2D>("Cover Square");
+            Marker = Content.Load<Texture2D>("Marker");
 
             SetBackground();
 
@@ -79,6 +89,7 @@ namespace My_2019_AS_Res
 
             Grid.Init();
             SetCounters(Grid);
+            CounterPos = new Vector2(-1, -1);
             // TODO: use this.Content to load your game content here
         }
 
@@ -96,6 +107,8 @@ namespace My_2019_AS_Res
             // }
             // }
 
+            
+
             for (int ycor = 0; ycor < 8; ycor++)
             {
                 for (int xcor = 0; xcor < 8; xcor++)
@@ -103,12 +116,19 @@ namespace My_2019_AS_Res
                     if(Grid.grid[xcor,ycor].SquareColour == Color.White && Grid.grid[xcor, ycor].Y * 100 < 200)
                     {
                         Grid.grid[xcor, ycor].counter = WL;
-                        Console.WriteLine("Counter Placed");
+                        Grid.grid[xcor, ycor].active =true;
+                        Console.WriteLine("Counter Placed: "+xcor+" "+ycor);
                     }
                     if (Grid.grid[xcor, ycor].SquareColour == Color.White && Grid.grid[xcor, ycor].Y * 100 >= 600)
                     {
                         Grid.grid[xcor, ycor].counter = BL;
+                        Grid.grid[xcor, ycor].active = true;
+                        Console.WriteLine("Counter Placed: " + xcor + " " + ycor);
+                        Console.WriteLine("grid grid Y " + Grid.grid[xcor, ycor].Y);
+                        Console.WriteLine("grid grid X " + Grid.grid[xcor, ycor].X);
                     }
+                    
+
                     Console.WriteLine((Grid.grid[xcor, ycor].counter != null) + " Counter Created" + xcor + " " + ycor);
                     Console.WriteLine((Grid.grid[xcor, ycor].SquareColour) + " Counter Created" + xcor + " " + ycor);
                 }
@@ -132,10 +152,47 @@ namespace My_2019_AS_Res
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
+
+            MouseState State = Mouse.GetState();
+            
+
+          
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-           
+           if (State.LeftButton == ButtonState.Pressed && !Halt.Enabled)
+            {
+
+                Vector2 MousePos = new Vector2(State.X, State.Y);
+                MousePos.X = State.X;
+                MousePos.Y = State.Y;
+                int SelectedAreaXOverflow = State.X % 100;
+                int SelectedAreaYOverflow = State.Y % 100;
+                int SelectedX = ((State.X - SelectedAreaXOverflow) / 100);
+                int SelectedY = ((State.Y - SelectedAreaYOverflow) / 100);
+                Console.WriteLine("Clicked COOR " + (SelectedX) + " " + (SelectedY));
+                Console.WriteLine("Clicked X,Y " + (State.X) + " " + (State.Y));
+
+                try
+                {
+                    if (Grid.grid[SelectedX, SelectedY].active)
+                        CounterPos = new Vector2(SelectedX, SelectedY);
+                    else
+                        CounterPos = new Vector2(-1, -1);
+                }
+
+                catch(Exception ex)
+                { Console.WriteLine("Outside Selected Area: " + ex.Message); }
+
+                Halt.Elapsed += new ElapsedEventHandler(OnTimedEvent);
+                Halt.Interval = 100;
+                Halt.Enabled = true;
+            }
+
+            ////hereif (current.IsKeyDown(Keys.W))
+            { Grid.grid[0, 0].active = false; }
+
+
 
             // TODO: Add your update logic here
 
@@ -152,6 +209,7 @@ namespace My_2019_AS_Res
 
             // TODO: Add your drawing code here
             spriteBatch.Begin();
+            pixel.SetData(new[] { Color.Black });
             for (int r = 0; r < rows; r++)
             {
                 for (int c = 0; c < cols; c++)
@@ -186,8 +244,32 @@ namespace My_2019_AS_Res
                 start += increm;
             }
 
+            pixel.SetData(new[] { Color.White });
+
+            if (CounterPos!=new Vector2(-1,-1) && Grid.grid[((int)CounterPos.X), (int)CounterPos.X].active)
+            {
+                Rectangle selected = new Rectangle((int)CounterPos.X * 100, (int)CounterPos.Y * 100, 100, 100);
+                spriteBatch.Draw(pixel, selected, Color.LightGray);
+            }
             Grid.Draw(spriteBatch);
 
+
+
+
+            ///// herefor (int ycor = 0; ycor < 8; ycor++)
+            //{
+               // for (int xcor = 0; xcor < 8; xcor++)
+               // {
+                  //  if (Grid.grid[xcor, ycor].active == false && Grid.grid[xcor, ycor].SquareColour == Color.White)
+                  //  {
+                   //     int coverx = xcor * 100 + 4;
+                   //     int covery = ycor * 100 + 4;
+                   //     spriteBatch.Draw(CoverSquare, new Vector2(coverx, covery), null, Color.Red);
+                   //     Console.WriteLine("Active? " + Grid.grid[xcor, ycor].active);
+                   // }
+               // }
+          //  }
+            
             spriteBatch.End();
             base.Draw(gameTime);
         }
@@ -203,6 +285,11 @@ namespace My_2019_AS_Res
                 }
                 //else background[r, c] = false;
             }
+        }
+
+        private void OnTimedEvent(object source, ElapsedEventArgs e)
+        {
+            Halt.Enabled = false;
         }
     }
 }
