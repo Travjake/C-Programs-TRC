@@ -13,7 +13,9 @@ namespace My_2019_AS_Res
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
-
+        /// <summary>
+        /// // Your doing turns ////////////////////////////
+        /// </summary>
         SpriteFont Label;
         //Textures
         public Texture2D BlackSquare;
@@ -22,20 +24,27 @@ namespace My_2019_AS_Res
         public Texture2D LeftBorder;
         public Texture2D RightBorder;
         public Texture2D CoverSquare;
+        
         Texture Marker;
-        Texture2D WH, WL, BH, BL;
+        Texture2D WH, WL, BH, BL, CS;
         Texture2D pixel;
         //Vectors
-        Vector2 MousePos, CounterPos;
+        Vector2 MousePos, CounterPos,SelectedCounter;
         //Form the Grid
         const int rows = 8;
         const int cols = 8;
         bool[,] background = new bool[rows, cols];
+        bool turn = false;
         //States
+
         //Timers
         Timer Halt = new System.Timers.Timer();
         KeyboardState current = Keyboard.GetState();
-
+        //Need ints
+        int SelectedX = 0;
+        int SelectedY = 0;
+        int DidMoveX = -1; 
+        int DidMoveY = -1;
         Board Grid = new Board();
 
         public Game1()
@@ -77,6 +86,7 @@ namespace My_2019_AS_Res
             WL = Content.Load<Texture2D>("White Lower");
             BH = Content.Load<Texture2D>("Black Higher");
             BL = Content.Load<Texture2D>("Black Lower");
+            CS = Content.Load<Texture2D>("Counter Selected");
             CoverSquare = Content.Load<Texture2D>("Cover Square");
             Marker = Content.Load<Texture2D>("Marker");
 
@@ -90,6 +100,7 @@ namespace My_2019_AS_Res
             Grid.Init();
             SetCounters(Grid);
             CounterPos = new Vector2(-1, -1);
+            SelectedCounter = CounterPos;
             // TODO: use this.Content to load your game content here
         }
 
@@ -153,32 +164,78 @@ namespace My_2019_AS_Res
         protected override void Update(GameTime gameTime)
         {
 
-            MouseState State = Mouse.GetState();
-            
 
-          
+            MouseState State = Mouse.GetState();
+
+
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
            if (State.LeftButton == ButtonState.Pressed && !Halt.Enabled)
-            {
+           {
+
+                bool ClickOne = true;
 
                 Vector2 MousePos = new Vector2(State.X, State.Y);
-                MousePos.X = State.X;
-                MousePos.Y = State.Y;
+                //MousePos.X = State.X;
+                //MousePos.Y = State.Y;
                 int SelectedAreaXOverflow = State.X % 100;
                 int SelectedAreaYOverflow = State.Y % 100;
-                int SelectedX = ((State.X - SelectedAreaXOverflow) / 100);
-                int SelectedY = ((State.Y - SelectedAreaYOverflow) / 100);
+                SelectedX = ((State.X - SelectedAreaXOverflow) / 100);
+                SelectedY = ((State.Y - SelectedAreaYOverflow) / 100);
                 Console.WriteLine("Clicked COOR " + (SelectedX) + " " + (SelectedY));
                 Console.WriteLine("Clicked X,Y " + (State.X) + " " + (State.Y));
 
+                
+                
+               
+                
+
+                
+                    
+
                 try
                 {
-                    if (Grid.grid[SelectedX, SelectedY].active)
-                        CounterPos = new Vector2(SelectedX, SelectedY);
-                    else
-                        CounterPos = new Vector2(-1, -1);
+                    Console.WriteLine(Grid.grid[SelectedX, SelectedY].active);
+                    if(Grid.grid[SelectedX, SelectedY].active)
+                    {
+                        if(Grid.grid[SelectedX, SelectedY].counter==WL && turn==false)
+                        {
+                            SelectedCounter = new Vector2(SelectedX, SelectedY);
+                        }
+                        else if(Grid.grid[SelectedX, SelectedY].counter == BL && turn==true)
+                        {
+                            SelectedCounter = new Vector2(SelectedX, SelectedY);
+                        }
+                    }
+                    else if(SelectedCounter!=new Vector2(-1,-1) && Grid.grid[SelectedX, SelectedY].SquareColour==Color.White)
+                    {
+                        if ((Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter == WL || Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter == WH) && turn == false)
+                        {
+                            if ((SelectedX + 1 == SelectedCounter.X && SelectedY + 1 == SelectedCounter.Y) || (SelectedX - 1 == SelectedCounter.X && SelectedY + 1 == SelectedCounter.Y) && Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].active == false)
+                            {
+                                Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].active = false;
+                                Grid.grid[SelectedX, SelectedY].active = true;
+                                Grid.grid[SelectedX, SelectedY].counter = Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter;
+                                Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter = null;
+                                SelectedCounter = new Vector2(-1, -1);
+                                turn = true;
+                            }
+                        }
+                        
+                        if ((Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter == BL || Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter == BH) && turn == true)
+                        {
+                            if((SelectedX + 1 == SelectedCounter.X && SelectedY - 1 == SelectedCounter.Y) || (SelectedX - 1 == SelectedCounter.X && SelectedY - 1 == SelectedCounter.Y) && Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].active == false)
+                            {
+                                Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].active = false;
+                                Grid.grid[SelectedX, SelectedY].active = true;
+                                Grid.grid[SelectedX, SelectedY].counter = Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter;
+                                Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter = null;
+                                SelectedCounter = new Vector2(-1, -1);
+                                turn = false;
+                            }
+                        }
+                    }
                 }
 
                 catch(Exception ex)
@@ -187,10 +244,11 @@ namespace My_2019_AS_Res
                 Halt.Elapsed += new ElapsedEventHandler(OnTimedEvent);
                 Halt.Interval = 100;
                 Halt.Enabled = true;
-            }
+           }
 
-            ////hereif (current.IsKeyDown(Keys.W))
-            { Grid.grid[0, 0].active = false; }
+           
+            
+            
 
 
 
@@ -206,6 +264,8 @@ namespace My_2019_AS_Res
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.White);
+            bool twoclick = false;
+            MouseState State = Mouse.GetState();
 
             // TODO: Add your drawing code here
             spriteBatch.Begin();
@@ -246,32 +306,22 @@ namespace My_2019_AS_Res
 
             pixel.SetData(new[] { Color.White });
 
-            if (CounterPos!=new Vector2(-1,-1) && Grid.grid[((int)CounterPos.X), (int)CounterPos.X].active)
-            {
-                Rectangle selected = new Rectangle((int)CounterPos.X * 100, (int)CounterPos.Y * 100, 100, 100);
-                spriteBatch.Draw(pixel, selected, Color.LightGray);
-            }
+
             Grid.Draw(spriteBatch);
 
+         
 
 
 
-            ///// herefor (int ycor = 0; ycor < 8; ycor++)
-            //{
-               // for (int xcor = 0; xcor < 8; xcor++)
-               // {
-                  //  if (Grid.grid[xcor, ycor].active == false && Grid.grid[xcor, ycor].SquareColour == Color.White)
-                  //  {
-                   //     int coverx = xcor * 100 + 4;
-                   //     int covery = ycor * 100 + 4;
-                   //     spriteBatch.Draw(CoverSquare, new Vector2(coverx, covery), null, Color.Red);
-                   //     Console.WriteLine("Active? " + Grid.grid[xcor, ycor].active);
-                   // }
-               // }
-          //  }
-            
+
+
+            spriteBatch.End();
+
+            spriteBatch.Begin();
+            spriteBatch.Draw(CS, new Vector2(SelectedCounter.X * 100 + 15, SelectedCounter.Y * 100 + 15), Color.Yellow);
             spriteBatch.End();
             base.Draw(gameTime);
+           
         }
 
         public void SetBackground()
