@@ -43,8 +43,8 @@ namespace My_2019_AS_Res
         //Need ints
         int SelectedX = 0;
         int SelectedY = 0;
-        int HRW = -1;
-        int HRB = -1;
+        int WhiteTaken = 0;
+        int BlackTaken = 0;
         Board Grid = new Board();
 
         public Game1()
@@ -200,11 +200,11 @@ namespace My_2019_AS_Res
                     Console.WriteLine(Grid.grid[SelectedX, SelectedY].active);
                     if(Grid.grid[SelectedX, SelectedY].active)
                     {
-                        if(Grid.grid[SelectedX, SelectedY].counter==WL && turn==false)
+                        if((Grid.grid[SelectedX, SelectedY].counter==WL || Grid.grid[SelectedX, SelectedY].counter == WH) && turn==false)
                         {
                             SelectedCounter = new Vector2(SelectedX, SelectedY);
                         }
-                        else if(Grid.grid[SelectedX, SelectedY].counter == BL && turn==true)
+                        else if((Grid.grid[SelectedX, SelectedY].counter == BL || Grid.grid[SelectedX, SelectedY].counter == BH ) && turn==true)
                         {
                             SelectedCounter = new Vector2(SelectedX, SelectedY);
                         }
@@ -212,7 +212,7 @@ namespace My_2019_AS_Res
                     else if(SelectedCounter!=new Vector2(-1,-1) && Grid.grid[SelectedX, SelectedY].SquareColour==Color.White)
                     {
                         //White Movements
-                        if ((Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter == WL || Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter == WH) && turn == false)
+                        if ((Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter == WL) && turn == false)
                         {
                             //Normal Movement ///////////////////////////////////
                             if ((SelectedX  == (int)SelectedCounter.X + 1 && SelectedY == (int)SelectedCounter.Y + 1) || (SelectedX == (int)SelectedCounter.X - 1 && SelectedY == (int)SelectedCounter.Y + 1 && Grid.grid[SelectedX, SelectedY].active == false))
@@ -221,10 +221,10 @@ namespace My_2019_AS_Res
                                 Grid.grid[SelectedX, SelectedY].active = true;
                                 Grid.grid[SelectedX, SelectedY].counter = Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter;
                                 Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter = null;
-                                SelectedCounter = new Vector2(-1, -1); /// Keep Here
+                                SelectedCounter = new Vector2(-1, -1); 
                                 turn = true;
                             }
-                            //Different Taking /////////////////////////////////
+                            //Different Taking ///////////////////////////////// 
                             else if(SelectedX == (int)SelectedCounter.X + 2 && SelectedY == (int)SelectedCounter.Y + 2 && Grid.grid[(int)SelectedCounter.X + 1,(int)SelectedCounter.Y +1].active == true && Grid.grid[SelectedX, SelectedY].active == false && (Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y + 1].counter == BL || (Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y + 1].counter == BH)))
                             {
                                 Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].active = false;
@@ -233,7 +233,8 @@ namespace My_2019_AS_Res
                                 Grid.grid[SelectedX, SelectedY].counter = Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter;
                                 Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y + 1].counter = null;
                                 Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter = null;
-                                SelectedCounter = new Vector2(-1, -1); /// Keep Here
+                                SelectedCounter = new Vector2(-1, -1);
+                                BlackTaken++;
                                 turn = true;
                             } //Taking single right
                             else if (SelectedX == (int)SelectedCounter.X - 2 && SelectedY == (int)SelectedCounter.Y + 2 && Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y + 1].active == true && Grid.grid[SelectedX, SelectedY].active == false && (Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y + 1].counter == BL || (Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y + 1].counter == BH)))
@@ -244,7 +245,8 @@ namespace My_2019_AS_Res
                                 Grid.grid[SelectedX, SelectedY].counter = Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter;
                                 Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y + 1].counter = null;
                                 Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter = null;
-                                SelectedCounter = new Vector2(-1, -1); /// Keep Here
+                                SelectedCounter = new Vector2(-1, -1);
+                                BlackTaken++;
                                 turn = true;
                             }//taking single left 
                             else if (SelectedX == (int)SelectedCounter.X - 4 && SelectedY == (int)SelectedCounter.Y + 4 && Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y + 1].active == true && Grid.grid[(int)SelectedCounter.X - 3, (int)SelectedCounter.Y + 3].active == true && Grid.grid[SelectedX, SelectedY].active == false && Grid.grid[(int)SelectedCounter.X - 2, (int)SelectedCounter.Y + 2].active == false && (Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y + 1].counter == BL || (Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y + 1].counter == BH) && (Grid.grid[(int)SelectedCounter.X - 3, (int)SelectedCounter.Y + 3].counter == BL || (Grid.grid[(int)SelectedCounter.X - 3, (int)SelectedCounter.Y + 3].counter == BH))))
@@ -260,7 +262,8 @@ namespace My_2019_AS_Res
                                 Grid.grid[(int)SelectedCounter.X - 3, (int)SelectedCounter.Y + 3].counter = null;
                                 Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter = null;
                                 //Additional
-                                SelectedCounter = new Vector2(-1, -1); /// Keep Here
+                                SelectedCounter = new Vector2(-1, -1);
+                                BlackTaken = BlackTaken + 2;
                                 turn = true;
                             }//taking double left 
                             else if (SelectedX == (int)SelectedCounter.X + 4 && SelectedY == (int)SelectedCounter.Y + 4 && Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y + 1].active == true && Grid.grid[(int)SelectedCounter.X + 3, (int)SelectedCounter.Y + 3].active == true && Grid.grid[SelectedX, SelectedY].active == false && Grid.grid[(int)SelectedCounter.X + 2, (int)SelectedCounter.Y + 2].active == false && (Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y + 1].counter == BL || (Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y + 1].counter == BH) && (Grid.grid[(int)SelectedCounter.X + 3, (int)SelectedCounter.Y + 3].counter == BL || (Grid.grid[(int)SelectedCounter.X + 3, (int)SelectedCounter.Y + 3].counter == BH))))
@@ -276,7 +279,8 @@ namespace My_2019_AS_Res
                                 Grid.grid[(int)SelectedCounter.X + 3, (int)SelectedCounter.Y + 3].counter = null;
                                 Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter = null;
                                 //Additional
-                                SelectedCounter = new Vector2(-1, -1); /// Keep Here
+                                SelectedCounter = new Vector2(-1, -1);
+                                BlackTaken = BlackTaken + 2;
                                 turn = true;
                             }//taking double right
 
@@ -284,7 +288,7 @@ namespace My_2019_AS_Res
                         }
                         
                         //Black Movements 
-                        if ((Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter == BL || Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter == BH) && turn == true)
+                        if ((Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter == BL) && turn == true)
                         {
                             //Normal Movement /////////////////////////////
                             if ((SelectedX == SelectedCounter.X + 1 && SelectedY == SelectedCounter.Y - 1) || (SelectedX == SelectedCounter.X - 1 && SelectedY== SelectedCounter.Y - 1 && Grid.grid[SelectedX,SelectedY].active == false))
@@ -293,7 +297,7 @@ namespace My_2019_AS_Res
                                 Grid.grid[SelectedX, SelectedY].active = true;
                                 Grid.grid[SelectedX, SelectedY].counter = Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter;
                                 Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter = null;
-                                SelectedCounter = new Vector2(-1, -1); /// Keep Here
+                                SelectedCounter = new Vector2(-1, -1); 
                                 turn = false;
                             }
                             //Diffrenent Taking /////////////////////////
@@ -305,7 +309,8 @@ namespace My_2019_AS_Res
                                 Grid.grid[SelectedX, SelectedY].counter = Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter;
                                 Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y - 1].counter = null;
                                 Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter = null;
-                                SelectedCounter = new Vector2(-1, -1); /// Keep Here
+                                SelectedCounter = new Vector2(-1, -1);
+                                WhiteTaken++;
                                 turn = false;
                             } //Taking single right
                             else if (SelectedX == (int)SelectedCounter.X - 2 && SelectedY == (int)SelectedCounter.Y - 2 && Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y - 1].active == true && Grid.grid[SelectedX, SelectedY].active == false && (Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y - 1].counter == WL || (Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y - 1].counter == WH)))
@@ -316,7 +321,8 @@ namespace My_2019_AS_Res
                                 Grid.grid[SelectedX, SelectedY].counter = Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter;
                                 Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y - 1].counter = null;
                                 Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter = null;
-                                SelectedCounter = new Vector2(-1, -1); /// Keep Here
+                                SelectedCounter = new Vector2(-1, -1);
+                                WhiteTaken++;
                                 turn = false;
                             }//taking single left 
                             else if (SelectedX == (int)SelectedCounter.X - 4 && SelectedY == (int)SelectedCounter.Y - 4 && Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y - 1].active == true && Grid.grid[(int)SelectedCounter.X - 3, (int)SelectedCounter.Y - 3].active == true && Grid.grid[SelectedX, SelectedY].active == false && Grid.grid[(int)SelectedCounter.X - 2, (int)SelectedCounter.Y - 2].active == false && (Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y - 1].counter == WL || (Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y - 1].counter == WH) && (Grid.grid[(int)SelectedCounter.X - 3, (int)SelectedCounter.Y - 3].counter == WL || (Grid.grid[(int)SelectedCounter.X - 3, (int)SelectedCounter.Y - 3].counter == WH))))
@@ -332,7 +338,8 @@ namespace My_2019_AS_Res
                                 Grid.grid[(int)SelectedCounter.X - 3, (int)SelectedCounter.Y - 3].counter = null;
                                 Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter = null;
                                 //Additional
-                                SelectedCounter = new Vector2(-1, -1); /// Keep Here
+                                SelectedCounter = new Vector2(-1, -1);
+                                WhiteTaken = WhiteTaken + 2;
                                 turn = false;
                             }//taking double left 
                             else if (SelectedX == (int)SelectedCounter.X + 4 && SelectedY == (int)SelectedCounter.Y - 4 && Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y - 1].active == true && Grid.grid[(int)SelectedCounter.X + 3, (int)SelectedCounter.Y - 3].active == true && Grid.grid[SelectedX, SelectedY].active == false && Grid.grid[(int)SelectedCounter.X + 2, (int)SelectedCounter.Y - 2].active == false && (Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y - 1].counter == WL || (Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y - 1].counter == WH) && (Grid.grid[(int)SelectedCounter.X + 3, (int)SelectedCounter.Y - 3].counter == WL || (Grid.grid[(int)SelectedCounter.X + 3, (int)SelectedCounter.Y - 3].counter == WH))))
@@ -348,14 +355,335 @@ namespace My_2019_AS_Res
                                 Grid.grid[(int)SelectedCounter.X + 3, (int)SelectedCounter.Y - 3].counter = null;
                                 Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter = null;
                                 //Additional
-                                SelectedCounter = new Vector2(-1, -1); /// Keep Here
+                                SelectedCounter = new Vector2(-1, -1);
+                                WhiteTaken = WhiteTaken + 2;
                                 turn = false;
                             }//taking double right
-
-                            
-
                         }
-                        
+
+                        ///Higher Movements White
+                        if ((Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter == WH && turn == false))
+                        {
+                            ///Normal Movements///////////////////////
+                            if ((SelectedX == (int)SelectedCounter.X + 1 && SelectedY == (int)SelectedCounter.Y + 1) || (SelectedX == (int)SelectedCounter.X - 1 && SelectedY == (int)SelectedCounter.Y + 1 && Grid.grid[SelectedX, SelectedY].active == false))
+                            {
+                                Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].active = false;
+                                Grid.grid[SelectedX, SelectedY].active = true;
+                                Grid.grid[SelectedX, SelectedY].counter = Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter;
+                                Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter = null;
+                                SelectedCounter = new Vector2(-1, -1);
+                                if (turn == true)
+                                    turn = false;
+                                else turn = true;
+                            }
+                            else if ((SelectedX == SelectedCounter.X + 1 && SelectedY == SelectedCounter.Y - 1) || (SelectedX == SelectedCounter.X - 1 && SelectedY == SelectedCounter.Y - 1 && Grid.grid[SelectedX, SelectedY].active == false))
+                            {
+                                Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].active = false;
+                                Grid.grid[SelectedX, SelectedY].active = true;
+                                Grid.grid[SelectedX, SelectedY].counter = Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter;
+                                Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter = null;
+                                SelectedCounter = new Vector2(-1, -1);
+                                if (turn == true)
+                                    turn = false;
+                                else turn = true;
+                            }
+                            ///Single Takes////////////////////////////////
+                            else if(SelectedX == (int)SelectedCounter.X + 2 && SelectedY == (int)SelectedCounter.Y + 2 && Grid.grid[(int)SelectedCounter.X + 1,(int)SelectedCounter.Y +1].active == true && Grid.grid[SelectedX, SelectedY].active == false && (Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y + 1].counter == BL || (Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y + 1].counter == BH)))
+                            {
+                                Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].active = false;
+                                Grid.grid[SelectedX, SelectedY].active = true;
+                                Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y + 1].active = false;
+                                Grid.grid[SelectedX, SelectedY].counter = Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter;
+                                Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y + 1].counter = null;
+                                Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter = null;
+                                SelectedCounter = new Vector2(-1, -1);
+                                BlackTaken++;
+                                if (turn == true)
+                                    turn = false;
+                                else turn = true;
+                            } //Taking single right
+                            else if (SelectedX == (int)SelectedCounter.X - 2 && SelectedY == (int)SelectedCounter.Y + 2 && Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y + 1].active == true && Grid.grid[SelectedX, SelectedY].active == false && (Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y + 1].counter == BL || (Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y + 1].counter == BH)))
+                            {
+                                Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].active = false;
+                                Grid.grid[SelectedX, SelectedY].active = true;
+                                Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y + 1].active = false;
+                                Grid.grid[SelectedX, SelectedY].counter = Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter;
+                                Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y + 1].counter = null;
+                                Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter = null;
+                                SelectedCounter = new Vector2(-1, -1);
+                                BlackTaken++;
+                                if (turn == true)
+                                    turn = false;
+                                else turn = true;
+                            }//taking single left
+                            else if (SelectedX == (int)SelectedCounter.X + 2 && SelectedY == (int)SelectedCounter.Y - 2 && Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y - 1].active == true && Grid.grid[SelectedX, SelectedY].active == false && (Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y - 1].counter == BL || (Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y - 1].counter == BH)))
+                            {
+                                Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].active = false;
+                                Grid.grid[SelectedX, SelectedY].active = true;
+                                Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y - 1].active = false;
+                                Grid.grid[SelectedX, SelectedY].counter = Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter;
+                                Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y - 1].counter = null;
+                                Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter = null;
+                                SelectedCounter = new Vector2(-1, -1);
+                                WhiteTaken++;
+                                if (turn == true)
+                                    turn = false;
+                                else turn = true;
+                            } //Taking single right
+                            else if (SelectedX == (int)SelectedCounter.X - 2 && SelectedY == (int)SelectedCounter.Y - 2 && Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y - 1].active == true && Grid.grid[SelectedX, SelectedY].active == false && (Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y - 1].counter == BL || (Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y - 1].counter == BH)))
+                            {
+                                Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].active = false;
+                                Grid.grid[SelectedX, SelectedY].active = true;
+                                Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y - 1].active = false;
+                                Grid.grid[SelectedX, SelectedY].counter = Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter;
+                                Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y - 1].counter = null;
+                                Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter = null;
+                                SelectedCounter = new Vector2(-1, -1);
+                                WhiteTaken++;
+                                if (turn == true)
+                                    turn = false;
+                                else turn = true;
+                            }//taking single left 
+                             ///Double Takes////////////////////////////////////////
+                            else if (SelectedX == (int)SelectedCounter.X - 4 && SelectedY == (int)SelectedCounter.Y + 4 && Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y + 1].active == true && Grid.grid[(int)SelectedCounter.X - 3, (int)SelectedCounter.Y + 3].active == true && Grid.grid[SelectedX, SelectedY].active == false && Grid.grid[(int)SelectedCounter.X - 2, (int)SelectedCounter.Y + 2].active == false && (Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y + 1].counter == BL || (Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y + 1].counter == BH) && (Grid.grid[(int)SelectedCounter.X - 3, (int)SelectedCounter.Y + 3].counter == BL || (Grid.grid[(int)SelectedCounter.X - 3, (int)SelectedCounter.Y + 3].counter == BH))))
+                            {
+                                //Setting Square States 
+                                Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].active = false;
+                                Grid.grid[SelectedX, SelectedY].active = true;
+                                Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y + 1].active = false;
+                                Grid.grid[(int)SelectedCounter.X - 3, (int)SelectedCounter.Y + 3].active = false;
+                                //Counter Status
+                                Grid.grid[SelectedX, SelectedY].counter = Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter;
+                                Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y + 1].counter = null;
+                                Grid.grid[(int)SelectedCounter.X - 3, (int)SelectedCounter.Y + 3].counter = null;
+                                Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter = null;
+                                //Additional
+                                SelectedCounter = new Vector2(-1, -1);
+                                BlackTaken = BlackTaken + 2;
+                                if (turn == true)
+                                    turn = false;
+                                else turn = true;
+                            }//taking double left 
+                            else if (SelectedX == (int)SelectedCounter.X + 4 && SelectedY == (int)SelectedCounter.Y + 4 && Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y + 1].active == true && Grid.grid[(int)SelectedCounter.X + 3, (int)SelectedCounter.Y + 3].active == true && Grid.grid[SelectedX, SelectedY].active == false && Grid.grid[(int)SelectedCounter.X + 2, (int)SelectedCounter.Y + 2].active == false && (Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y + 1].counter == BL || (Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y + 1].counter == BH) && (Grid.grid[(int)SelectedCounter.X + 3, (int)SelectedCounter.Y + 3].counter == BL || (Grid.grid[(int)SelectedCounter.X + 3, (int)SelectedCounter.Y + 3].counter == BH))))
+                            {
+                                //Setting Square States 
+                                Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].active = false;
+                                Grid.grid[SelectedX, SelectedY].active = true;
+                                Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y + 1].active = false;
+                                Grid.grid[(int)SelectedCounter.X + 3, (int)SelectedCounter.Y + 3].active = false;
+                                //Counter Status
+                                Grid.grid[SelectedX, SelectedY].counter = Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter;
+                                Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y + 1].counter = null;
+                                Grid.grid[(int)SelectedCounter.X + 3, (int)SelectedCounter.Y + 3].counter = null;
+                                Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter = null;
+                                //Additional
+                                SelectedCounter = new Vector2(-1, -1);
+                                BlackTaken = BlackTaken + 2;
+                                if (turn == true)
+                                    turn = false;
+                                else turn = true;
+                            }//taking double right
+                            else if (SelectedX == (int)SelectedCounter.X - 4 && SelectedY == (int)SelectedCounter.Y - 4 && Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y - 1].active == true && Grid.grid[(int)SelectedCounter.X - 3, (int)SelectedCounter.Y - 3].active == true && Grid.grid[SelectedX, SelectedY].active == false && Grid.grid[(int)SelectedCounter.X - 2, (int)SelectedCounter.Y - 2].active == false && (Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y - 1].counter == BL || (Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y - 1].counter == BH) && (Grid.grid[(int)SelectedCounter.X - 3, (int)SelectedCounter.Y - 3].counter == BL || (Grid.grid[(int)SelectedCounter.X - 3, (int)SelectedCounter.Y - 3].counter == BH))))
+                            {
+                                //Setting Square States 
+                                Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].active = false;
+                                Grid.grid[SelectedX, SelectedY].active = true;
+                                Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y - 1].active = false;
+                                Grid.grid[(int)SelectedCounter.X - 3, (int)SelectedCounter.Y - 3].active = false;
+                                //Counter Status
+                                Grid.grid[SelectedX, SelectedY].counter = Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter;
+                                Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y - 1].counter = null;
+                                Grid.grid[(int)SelectedCounter.X - 3, (int)SelectedCounter.Y - 3].counter = null;
+                                Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter = null;
+                                //Additional
+                                SelectedCounter = new Vector2(-1, -1);
+                                WhiteTaken = WhiteTaken + 2;
+                                if (turn == true)
+                                    turn = false;
+                                else turn = true;
+                            }//taking double left 
+                            else if (SelectedX == (int)SelectedCounter.X + 4 && SelectedY == (int)SelectedCounter.Y - 4 && Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y - 1].active == true && Grid.grid[(int)SelectedCounter.X + 3, (int)SelectedCounter.Y - 3].active == true && Grid.grid[SelectedX, SelectedY].active == false && Grid.grid[(int)SelectedCounter.X + 2, (int)SelectedCounter.Y - 2].active == false && (Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y - 1].counter == BL || (Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y - 1].counter == BH) && (Grid.grid[(int)SelectedCounter.X + 3, (int)SelectedCounter.Y - 3].counter == BL || (Grid.grid[(int)SelectedCounter.X + 3, (int)SelectedCounter.Y - 3].counter == BH))))
+                            {
+                                //Setting Square States 
+                                Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].active = false;
+                                Grid.grid[SelectedX, SelectedY].active = true;
+                                Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y - 1].active = false;
+                                Grid.grid[(int)SelectedCounter.X + 3, (int)SelectedCounter.Y - 3].active = false;
+                                //Counter Status
+                                Grid.grid[SelectedX, SelectedY].counter = Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter;
+                                Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y - 1].counter = null;
+                                Grid.grid[(int)SelectedCounter.X + 3, (int)SelectedCounter.Y - 3].counter = null;
+                                Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter = null;
+                                //Additional
+                                SelectedCounter = new Vector2(-1, -1);
+                                WhiteTaken = WhiteTaken + 2;
+                                if (turn == true)
+                                    turn = false;
+                                else turn = true;
+                            }//taking double right
+                        }
+
+                        /// Higher Movements Black
+                        if ((Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter == BH && turn == true))
+                        {
+                            ///Normal Movements///////////////////////
+                            if ((SelectedX == (int)SelectedCounter.X + 1 && SelectedY == (int)SelectedCounter.Y + 1) || (SelectedX == (int)SelectedCounter.X - 1 && SelectedY == (int)SelectedCounter.Y + 1 && Grid.grid[SelectedX, SelectedY].active == false))
+                            {
+                                Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].active = false;
+                                Grid.grid[SelectedX, SelectedY].active = true;
+                                Grid.grid[SelectedX, SelectedY].counter = Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter;
+                                Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter = null;
+                                SelectedCounter = new Vector2(-1, -1);
+                                if (turn == true)
+                                    turn = false;
+                                else turn = true;
+                            }
+                            else if ((SelectedX == SelectedCounter.X + 1 && SelectedY == SelectedCounter.Y - 1) || (SelectedX == SelectedCounter.X - 1 && SelectedY == SelectedCounter.Y - 1 && Grid.grid[SelectedX, SelectedY].active == false))
+                            {
+                                Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].active = false;
+                                Grid.grid[SelectedX, SelectedY].active = true;
+                                Grid.grid[SelectedX, SelectedY].counter = Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter;
+                                Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter = null;
+                                SelectedCounter = new Vector2(-1, -1);
+                                if (turn == true)
+                                    turn = false;
+                                else turn = true;
+                            }
+                            ///Single Takes////////////////////////////////
+                            else if (SelectedX == (int)SelectedCounter.X + 2 && SelectedY == (int)SelectedCounter.Y + 2 && Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y + 1].active == true && Grid.grid[SelectedX, SelectedY].active == false && (Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y + 1].counter == WL || (Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y + 1].counter == WH)))
+                            {
+                                Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].active = false;
+                                Grid.grid[SelectedX, SelectedY].active = true;
+                                Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y + 1].active = false;
+                                Grid.grid[SelectedX, SelectedY].counter = Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter;
+                                Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y + 1].counter = null;
+                                Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter = null;
+                                SelectedCounter = new Vector2(-1, -1);
+                                BlackTaken++;
+                                if (turn == true)
+                                    turn = false;
+                                else turn = true;
+                            } //Taking single right
+                            else if (SelectedX == (int)SelectedCounter.X - 2 && SelectedY == (int)SelectedCounter.Y + 2 && Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y + 1].active == true && Grid.grid[SelectedX, SelectedY].active == false && (Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y + 1].counter == WL || (Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y + 1].counter == WH)))
+                            {
+                                Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].active = false;
+                                Grid.grid[SelectedX, SelectedY].active = true;
+                                Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y + 1].active = false;
+                                Grid.grid[SelectedX, SelectedY].counter = Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter;
+                                Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y + 1].counter = null;
+                                Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter = null;
+                                SelectedCounter = new Vector2(-1, -1);
+                                BlackTaken++;
+                                if (turn == true)
+                                    turn = false;
+                                else turn = true;
+                            }//taking single left
+                            else if (SelectedX == (int)SelectedCounter.X + 2 && SelectedY == (int)SelectedCounter.Y - 2 && Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y - 1].active == true && Grid.grid[SelectedX, SelectedY].active == false && (Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y - 1].counter == WL || (Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y - 1].counter == WH)))
+                            {
+                                Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].active = false;
+                                Grid.grid[SelectedX, SelectedY].active = true;
+                                Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y - 1].active = false;
+                                Grid.grid[SelectedX, SelectedY].counter = Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter;
+                                Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y - 1].counter = null;
+                                Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter = null;
+                                SelectedCounter = new Vector2(-1, -1);
+                                WhiteTaken++;
+                                if (turn == true)
+                                    turn = false;
+                                else turn = true;
+                            } //Taking single right
+                            else if (SelectedX == (int)SelectedCounter.X - 2 && SelectedY == (int)SelectedCounter.Y - 2 && Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y - 1].active == true && Grid.grid[SelectedX, SelectedY].active == false && (Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y - 1].counter == WL || (Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y - 1].counter == WH)))
+                            {
+                                Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].active = false;
+                                Grid.grid[SelectedX, SelectedY].active = true;
+                                Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y - 1].active = false;
+                                Grid.grid[SelectedX, SelectedY].counter = Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter;
+                                Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y - 1].counter = null;
+                                Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter = null;
+                                SelectedCounter = new Vector2(-1, -1);
+                                WhiteTaken++;
+                                if (turn == true)
+                                    turn = false;
+                                else turn = true;
+                            }//taking single left 
+                             ///Double Takes////////////////////////////////////////
+                            else if (SelectedX == (int)SelectedCounter.X - 4 && SelectedY == (int)SelectedCounter.Y + 4 && Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y + 1].active == true && Grid.grid[(int)SelectedCounter.X - 3, (int)SelectedCounter.Y + 3].active == true && Grid.grid[SelectedX, SelectedY].active == false && Grid.grid[(int)SelectedCounter.X - 2, (int)SelectedCounter.Y + 2].active == false && (Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y + 1].counter == WL || (Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y + 1].counter == WH) && (Grid.grid[(int)SelectedCounter.X - 3, (int)SelectedCounter.Y + 3].counter == WL || (Grid.grid[(int)SelectedCounter.X - 3, (int)SelectedCounter.Y + 3].counter == WH))))
+                            {
+                                //Setting Square States 
+                                Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].active = false;
+                                Grid.grid[SelectedX, SelectedY].active = true;
+                                Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y + 1].active = false;
+                                Grid.grid[(int)SelectedCounter.X - 3, (int)SelectedCounter.Y + 3].active = false;
+                                //Counter Status
+                                Grid.grid[SelectedX, SelectedY].counter = Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter;
+                                Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y + 1].counter = null;
+                                Grid.grid[(int)SelectedCounter.X - 3, (int)SelectedCounter.Y + 3].counter = null;
+                                Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter = null;
+                                //Additional
+                                SelectedCounter = new Vector2(-1, -1);
+                                BlackTaken = BlackTaken + 2;
+                                if (turn == true)
+                                    turn = false;
+                                else turn = true;
+                            }//taking double left 
+                            else if (SelectedX == (int)SelectedCounter.X + 4 && SelectedY == (int)SelectedCounter.Y + 4 && Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y + 1].active == true && Grid.grid[(int)SelectedCounter.X + 3, (int)SelectedCounter.Y + 3].active == true && Grid.grid[SelectedX, SelectedY].active == false && Grid.grid[(int)SelectedCounter.X + 2, (int)SelectedCounter.Y + 2].active == false && (Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y + 1].counter == WL || (Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y + 1].counter == WH) && (Grid.grid[(int)SelectedCounter.X + 3, (int)SelectedCounter.Y + 3].counter == WL || (Grid.grid[(int)SelectedCounter.X + 3, (int)SelectedCounter.Y + 3].counter == WH))))
+                            {
+                                //Setting Square States 
+                                Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].active = false;
+                                Grid.grid[SelectedX, SelectedY].active = true;
+                                Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y + 1].active = false;
+                                Grid.grid[(int)SelectedCounter.X + 3, (int)SelectedCounter.Y + 3].active = false;
+                                //Counter Status
+                                Grid.grid[SelectedX, SelectedY].counter = Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter;
+                                Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y + 1].counter = null;
+                                Grid.grid[(int)SelectedCounter.X + 3, (int)SelectedCounter.Y + 3].counter = null;
+                                Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter = null;
+                                //Additional
+                                SelectedCounter = new Vector2(-1, -1);
+                                BlackTaken = BlackTaken + 2;
+                                if (turn == true)
+                                    turn = false;
+                                else turn = true;
+                            }//taking double right
+                            else if (SelectedX == (int)SelectedCounter.X - 4 && SelectedY == (int)SelectedCounter.Y - 4 && Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y - 1].active == true && Grid.grid[(int)SelectedCounter.X - 3, (int)SelectedCounter.Y - 3].active == true && Grid.grid[SelectedX, SelectedY].active == false && Grid.grid[(int)SelectedCounter.X - 2, (int)SelectedCounter.Y - 2].active == false && (Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y - 1].counter == WL || (Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y - 1].counter == WH) && (Grid.grid[(int)SelectedCounter.X - 3, (int)SelectedCounter.Y - 3].counter == WL || (Grid.grid[(int)SelectedCounter.X - 3, (int)SelectedCounter.Y - 3].counter == WH))))
+                            {
+                                //Setting Square States 
+                                Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].active = false;
+                                Grid.grid[SelectedX, SelectedY].active = true;
+                                Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y - 1].active = false;
+                                Grid.grid[(int)SelectedCounter.X - 3, (int)SelectedCounter.Y - 3].active = false;
+                                //Counter Status
+                                Grid.grid[SelectedX, SelectedY].counter = Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter;
+                                Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y - 1].counter = null;
+                                Grid.grid[(int)SelectedCounter.X - 3, (int)SelectedCounter.Y - 3].counter = null;
+                                Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter = null;
+                                //Additional
+                                SelectedCounter = new Vector2(-1, -1);
+                                WhiteTaken = WhiteTaken + 2;
+                                if (turn == true)
+                                    turn = false;
+                                else turn = true;
+                            }//taking double left 
+                            else if (SelectedX == (int)SelectedCounter.X + 4 && SelectedY == (int)SelectedCounter.Y - 4 && Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y - 1].active == true && Grid.grid[(int)SelectedCounter.X + 3, (int)SelectedCounter.Y - 3].active == true && Grid.grid[SelectedX, SelectedY].active == false && Grid.grid[(int)SelectedCounter.X + 2, (int)SelectedCounter.Y - 2].active == false && (Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y - 1].counter == WL || (Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y - 1].counter == WH) && (Grid.grid[(int)SelectedCounter.X + 3, (int)SelectedCounter.Y - 3].counter == WL || (Grid.grid[(int)SelectedCounter.X + 3, (int)SelectedCounter.Y - 3].counter == WH))))
+                            {
+                                //Setting Square States 
+                                Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].active = false;
+                                Grid.grid[SelectedX, SelectedY].active = true;
+                                Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y - 1].active = false;
+                                Grid.grid[(int)SelectedCounter.X + 3, (int)SelectedCounter.Y - 3].active = false;
+                                //Counter Status
+                                Grid.grid[SelectedX, SelectedY].counter = Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter;
+                                Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y - 1].counter = null;
+                                Grid.grid[(int)SelectedCounter.X + 3, (int)SelectedCounter.Y - 3].counter = null;
+                                Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter = null;
+                                //Additional
+                                SelectedCounter = new Vector2(-1, -1);
+                                WhiteTaken = WhiteTaken + 2;
+                                if (turn == true)
+                                    turn = false;
+                                else turn = true;
+                            }//taking double right
+                        }
                     }
                 }
 
@@ -367,24 +695,21 @@ namespace My_2019_AS_Res
                 Halt.Enabled = true;
            }
 
-            ///Checking for Higher
-            ///White
-            //if (HRW == 7 && Grid.grid[SelectedX, SelectedY].counter == WL)
-            //{
-            //    Grid.grid[SelectedX, SelectedY].counter = null;
-            //    Grid.grid[SelectedX, SelectedY].counter = WH;
-            //}
-            ///Black
-            //if (HRB == 0 && Grid.grid[SelectedX, SelectedY].counter == BL)
-            //{
-            //    Grid.grid[SelectedX, SelectedY].counter = BH;
-            //}
+            
+            if(SelectedY == 7 && Grid.grid[SelectedX, SelectedY].counter == WL)
+            {
+                Grid.grid[SelectedX, SelectedY].counter = WH;
+            }
 
+            if (SelectedY == 0 && Grid.grid[SelectedX, SelectedY].counter == BL)
+            {
+                Grid.grid[SelectedX, SelectedY].counter = BH;
+            }
 
 
 
             // TODO: Add your update logic here
-            
+
             base.Update(gameTime);
         }
 
@@ -395,7 +720,7 @@ namespace My_2019_AS_Res
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.White);
-            bool twoclick = false;
+            
             MouseState State = Mouse.GetState();
 
             // TODO: Add your drawing code here
@@ -440,11 +765,16 @@ namespace My_2019_AS_Res
 
             Grid.Draw(spriteBatch);
 
-         
 
-
-
-
+            ////////////////////////////////SpriteFonts
+            spriteBatch.DrawString(Label, "White Score: " + BlackTaken, new Vector2(10,865), Color.Black);
+            spriteBatch.DrawString(Label, "||" , new Vector2(167, 864), Color.Black);
+            spriteBatch.DrawString(Label, "Black Score: " + WhiteTaken, new Vector2(185, 865), Color.Black);
+            spriteBatch.DrawString(Label, "||", new Vector2(334, 864), Color.Black);
+            if(turn == false)
+                spriteBatch.DrawString(Label, "Turn: White", new Vector2(352, 865), Color.Black);
+            else
+                spriteBatch.DrawString(Label, "Turn: Black", new Vector2(352, 865), Color.Black);
 
             spriteBatch.End();
 
