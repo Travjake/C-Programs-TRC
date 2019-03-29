@@ -44,6 +44,7 @@
     <Compile Include="Game1.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SinglePlayer.cs" />
     <Compile Include="Square.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -57,9 +58,9 @@
     <Content Include="Icon.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Content\Content.mgcb">
+    <MonoGameContentReference Include="Content\Content.mgcb">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    </MonoGameContentReference>
     <None Include="app.manifest" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

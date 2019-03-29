@@ -35,6 +35,8 @@ namespace My_2019_AS_Res
         const int cols = 8;
         bool[,] background = new bool[rows, cols];
         bool turn = false;
+        bool WhiteWin;
+        bool BlackWin;
         //States
 
         //Timers
@@ -425,7 +427,7 @@ namespace My_2019_AS_Res
                                 Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y - 1].counter = null;
                                 Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter = null;
                                 SelectedCounter = new Vector2(-1, -1);
-                                WhiteTaken++;
+                                BlackTaken++;
                                 if (turn == true)
                                     turn = false;
                                 else turn = true;
@@ -439,7 +441,7 @@ namespace My_2019_AS_Res
                                 Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y - 1].counter = null;
                                 Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter = null;
                                 SelectedCounter = new Vector2(-1, -1);
-                                WhiteTaken++;
+                                BlackTaken++;
                                 if (turn == true)
                                     turn = false;
                                 else turn = true;
@@ -497,7 +499,7 @@ namespace My_2019_AS_Res
                                 Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter = null;
                                 //Additional
                                 SelectedCounter = new Vector2(-1, -1);
-                                WhiteTaken = WhiteTaken + 2;
+                                BlackTaken = BlackTaken + 2;
                                 if (turn == true)
                                     turn = false;
                                 else turn = true;
@@ -516,7 +518,7 @@ namespace My_2019_AS_Res
                                 Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter = null;
                                 //Additional
                                 SelectedCounter = new Vector2(-1, -1);
-                                WhiteTaken = WhiteTaken + 2;
+                                BlackTaken = BlackTaken + 2;
                                 if (turn == true)
                                     turn = false;
                                 else turn = true;
@@ -559,7 +561,7 @@ namespace My_2019_AS_Res
                                 Grid.grid[(int)SelectedCounter.X + 1, (int)SelectedCounter.Y + 1].counter = null;
                                 Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter = null;
                                 SelectedCounter = new Vector2(-1, -1);
-                                BlackTaken++;
+                                WhiteTaken++;
                                 if (turn == true)
                                     turn = false;
                                 else turn = true;
@@ -573,7 +575,7 @@ namespace My_2019_AS_Res
                                 Grid.grid[(int)SelectedCounter.X - 1, (int)SelectedCounter.Y + 1].counter = null;
                                 Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter = null;
                                 SelectedCounter = new Vector2(-1, -1);
-                                BlackTaken++;
+                                WhiteTaken++;
                                 if (turn == true)
                                     turn = false;
                                 else turn = true;
@@ -621,7 +623,7 @@ namespace My_2019_AS_Res
                                 Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter = null;
                                 //Additional
                                 SelectedCounter = new Vector2(-1, -1);
-                                BlackTaken = BlackTaken + 2;
+                                WhiteTaken = WhiteTaken + 2;
                                 if (turn == true)
                                     turn = false;
                                 else turn = true;
@@ -640,7 +642,7 @@ namespace My_2019_AS_Res
                                 Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter = null;
                                 //Additional
                                 SelectedCounter = new Vector2(-1, -1);
-                                BlackTaken = BlackTaken + 2;
+                                WhiteTaken = WhiteTaken + 2;
                                 if (turn == true)
                                     turn = false;
                                 else turn = true;
@@ -706,6 +708,15 @@ namespace My_2019_AS_Res
                 Grid.grid[SelectedX, SelectedY].counter = BH;
             }
 
+            if (WhiteTaken == 8)
+            {
+                BlackWin = true;
+            }
+            if (BlackTaken == 8)
+            {
+                WhiteWin = true;
+            }
+
 
 
             // TODO: Add your update logic here
@@ -720,7 +731,7 @@ namespace My_2019_AS_Res
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.White);
-            
+
             MouseState State = Mouse.GetState();
 
             // TODO: Add your drawing code here
@@ -742,13 +753,13 @@ namespace My_2019_AS_Res
             spriteBatch.Draw(pixel, new Rectangle(0, 800, 802, 2), Color.Black);//Bottom
             spriteBatch.Draw(pixel, new Rectangle(0, 0, 2, 800), Color.Black);//Left
             spriteBatch.Draw(pixel, new Rectangle(800, 0, 2, 800), Color.Black);//Right
-           
+
 
             Vector2 start = new Vector2(820, 40);
             Vector2 increm = new Vector2(0, 100);
             for (int i = 0; i < 8; i++)
             {
-                spriteBatch.DrawString(Label, Convert.ToString(i+1), start, Color.Black);
+                spriteBatch.DrawString(Label, Convert.ToString(i + 1), start, Color.Black);
                 start += increm;
             }
 
@@ -765,16 +776,42 @@ namespace My_2019_AS_Res
 
             Grid.Draw(spriteBatch);
 
+            
 
+            
             ////////////////////////////////SpriteFonts
-            spriteBatch.DrawString(Label, "White Score: " + BlackTaken, new Vector2(10,865), Color.Black);
-            spriteBatch.DrawString(Label, "||" , new Vector2(167, 864), Color.Black);
+            spriteBatch.DrawString(Label, "White Score: " + BlackTaken, new Vector2(10, 865), Color.Black);
+            spriteBatch.DrawString(Label, "||", new Vector2(167, 864), Color.Black);
             spriteBatch.DrawString(Label, "Black Score: " + WhiteTaken, new Vector2(185, 865), Color.Black);
             spriteBatch.DrawString(Label, "||", new Vector2(334, 864), Color.Black);
-            if(turn == false)
+            if (turn == false)
                 spriteBatch.DrawString(Label, "Turn: White", new Vector2(352, 865), Color.Black);
             else
                 spriteBatch.DrawString(Label, "Turn: Black", new Vector2(352, 865), Color.Black);
+
+            if (BlackWin == true)
+            {
+                spriteBatch.DrawString(Label, "Black Wins!!!", new Vector2(700, 865), Color.Black);
+                for (int i = 0; i < 8; i++)
+                {
+                    for (int x = 0; x < 8; x++)
+                    {
+                        Grid.grid[i, x].active = false;
+                    }
+                }
+                
+            }
+            if (WhiteWin == true)
+            {
+                spriteBatch.DrawString(Label, "White Wins!!!", new Vector2(700, 865), Color.Black);
+                for (int i = 0; i < 8; i++)
+                {
+                    for (int x = 0; x < 8; x++)
+                    {
+                        Grid.grid[i, x].active = false;
+                    }
+                }
+            }
 
             spriteBatch.End();
 
