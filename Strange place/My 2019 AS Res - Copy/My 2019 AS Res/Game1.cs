@@ -48,8 +48,9 @@ namespace My_2019_AS_Res
         int SelectedY = 0;
         int WhiteTaken = 0;
         int BlackTaken = 0;
-        int PB = -1;
-        int PW = -1;
+        int PossibleBlackMoves = 0;
+        int PossibleWhiteMoves = 0;
+
         Board Grid = new Board();
 
         public Game1()
@@ -111,8 +112,8 @@ namespace My_2019_AS_Res
 
         public void SetCounters(Board B)
         {
-
             
+
             
 
             for (int ycor = 0; ycor < 8; ycor++)
@@ -161,7 +162,7 @@ namespace My_2019_AS_Res
 
 
             MouseState State = Mouse.GetState();
-            current = Keyboard.GetState();
+
 
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
@@ -180,19 +181,6 @@ namespace My_2019_AS_Res
                 SelectedY = ((State.Y - SelectedAreaYOverflow) / 100);
                 Console.WriteLine("Clicked COOR " + (SelectedX) + " " + (SelectedY));
                 Console.WriteLine("Clicked X,Y " + (State.X) + " " + (State.Y));
-
-
-                if (current.IsKeyDown(Keys.F5))
-                {
-                    
-                    
-                }
-               
-               
-                
-
-                
-                    
 
                 try
                 {
@@ -283,7 +271,7 @@ namespace My_2019_AS_Res
                                 turn = true;
                             }//taking double right
 
-                            NewTurn = true;
+                            
                         }
                         
                         //Black Movements 
@@ -358,7 +346,6 @@ namespace My_2019_AS_Res
                                 WhiteTaken = WhiteTaken + 2;
                                 turn = false;
                             }//taking double right
-                            NewTurn = true;
                         }
 
                         ///Higher Movements White
@@ -521,7 +508,6 @@ namespace My_2019_AS_Res
                                     turn = false;
                                 else turn = true;
                             }//taking double right
-                            NewTurn = true;
                         }
 
                         /// Higher Movements Black
@@ -684,11 +670,12 @@ namespace My_2019_AS_Res
                                     turn = false;
                                 else turn = true;
                             }//taking double right
-                            NewTurn = true;
                         }
 
-                        
+
+                        NewTurn = true;
                     }
+                    
                 }
 
                 catch(Exception ex)
@@ -699,6 +686,10 @@ namespace My_2019_AS_Res
                 Halt.Enabled = true;
            }
 
+            TrapCheck(NewTurn);
+
+
+            //Game State Updates///////////////
             try
             {
                 if (SelectedY == 7 && Grid.grid[SelectedX, SelectedY].counter == WL)
@@ -711,24 +702,24 @@ namespace My_2019_AS_Res
                     Grid.grid[SelectedX, SelectedY].counter = BH;
                 }
 
-                if (PW == 0)
+                if (WhiteTaken == 8)
                 {
                     BlackWin = true;
                 }
-                if (PB == 0)
+                if (BlackTaken == 8)
                 {
                     WhiteWin = true;
                 }
             }
-            catch(Exception ex2)
+            catch( Exception ex2)
             {
-                Console.WriteLine("Error: " + ex2);
+                Console.WriteLine(ex2);
             }
 
 
 
             // TODO: Add your update logic here
-            PossibleMoves();
+
             base.Update(gameTime);
         }
 
@@ -788,14 +779,14 @@ namespace My_2019_AS_Res
 
             
             ////////////////////////////////SpriteFonts
-            spriteBatch.DrawString(Label, "White Moves: " + PW, new Vector2(10, 865), Color.Black);
-            spriteBatch.DrawString(Label, "||", new Vector2(175, 864), Color.Black);
-            spriteBatch.DrawString(Label, "Black Moves: " + PB, new Vector2(193, 865), Color.Black);
-            spriteBatch.DrawString(Label, "||", new Vector2(350, 864), Color.Black);
+            spriteBatch.DrawString(Label, "White Score: " + BlackTaken, new Vector2(10, 865), Color.Black);
+            spriteBatch.DrawString(Label, "||", new Vector2(167, 864), Color.Black);
+            spriteBatch.DrawString(Label, "Black Score: " + WhiteTaken, new Vector2(185, 865), Color.Black);
+            spriteBatch.DrawString(Label, "||", new Vector2(334, 864), Color.Black);
             if (turn == false)
-                spriteBatch.DrawString(Label, "Turn: White", new Vector2(365, 865), Color.Black);
+                spriteBatch.DrawString(Label, "Turn: White", new Vector2(352, 865), Color.Black);
             else
-                spriteBatch.DrawString(Label, "Turn: Black", new Vector2(365, 865), Color.Black);
+                spriteBatch.DrawString(Label, "Turn: Black", new Vector2(352, 865), Color.Black);
 
             if (BlackWin == true)
             {
@@ -848,158 +839,84 @@ namespace My_2019_AS_Res
             Halt.Enabled = false;
         }
 
-        private void PossibleMoves()
+        private void TrapCheck(bool NewTurn)
         {
-            Vector2 Looking = new Vector2(-1, -1);
-            Vector2 Looking2 = new Vector2(-1, -1);
-            Vector2 Looking3 = new Vector2(-1, -1);
-            Vector2 Looking4 = new Vector2(-1, -1);
+            Vector2 ynum = new Vector2(0, 0);
             int RunThrough = 0;
-            int CheckedPOptions = 0;
-            
-            Vector2 Num = new Vector2(0, 0);
+            int CheckValue = 1;
+            PossibleBlackMoves = 0;
+            PossibleWhiteMoves = 0;
             Vector2 Indent = new Vector2(1, 1);
             if (NewTurn == true)
             {
-                PB = 0;
-                PW = 0;
-                while (RunThrough <= 3)
+                NewTurn = false;
+                for (ynum.Y = 0; ynum.Y < 8; ynum.Y++)
                 {
-                    for (Num.Y = 0; Num.Y < 8; Num.Y++)
+                    for (ynum.X = 0; ynum.X < 8; ynum.X++)
                     {
-                        for (Num.X = 0; Num.X < 8; Num.X++)
+                        
+
+                        
+                        if (Grid.grid[(int)ynum.X, (int)ynum.Y].active == true && Grid.grid[(int)ynum.X, (int)ynum.Y].SquareColour == Color.White)
                         {
-                            if (Grid.grid[(int)Num.X, (int)Num.Y].active == true)
+                            Console.WriteLine("Checking: " + ynum.X + ", " + ynum.Y);
+                            RunThrough = 0;
+                            while (RunThrough < 4)
                             {
-                                Console.WriteLine("Checking: " + Num);
-                                RunThrough = 0;
-                                while (RunThrough < 4)
+                                Vector2 ynumc = new Vector2(0, 0);
+                                ynumc.Y = ynum.Y + Indent.Y;
+
+                                if (ynum.X > 0 && ynum.X < 7 && ynum.Y < 7 && ynum.Y > 0)
+                                {
+                                    if (Grid.grid[(int)ynum.X, (int)ynum.Y].counter == WL || Grid.grid[(int)ynum.X, (int)ynum.Y].counter == WH && Grid.grid[(int)ynum.X + (int)Indent.X, (int)ynum.Y + (int)Indent.Y].active == false)
+                                    {
+                                        if (Grid.grid[(int)ynum.X, (int)ynum.Y].counter == WH)
+                                        {
+                                            PossibleWhiteMoves++;
+                                            Console.WriteLine("Added possible White" + (ynum.X + Indent.X) + ", " + (ynum.Y + Indent.Y));
+                                        }
+                                        if (Grid.grid[(int)ynum.X, (int)ynum.Y].counter == WL && ((int)ynum.Y + (int)Indent.Y >= (int)ynum.Y))
+                                        {
+                                            PossibleWhiteMoves++;
+                                            Console.WriteLine("Added possible White" + (ynum.X + Indent.X) + ", " + (ynum.Y + Indent.Y));
+                                        }
+                                    }
+                                    if (Grid.grid[(int)ynum.X, (int)ynum.Y].counter == BH || Grid.grid[(int)ynum.X, (int)ynum.Y].counter == BL && Grid.grid[(int)ynum.X + (int)Indent.X, (int)ynum.Y + (int)Indent.Y].active == false)
+                                    {
+                                        if (Grid.grid[(int)ynum.X, (int)ynum.Y].counter == BH || (Grid.grid[(int)ynum.X, (int)ynum.Y].counter == BL && Indent.Y == -1))
+                                            PossibleBlackMoves++;
+
+                                    }
+                                }
+                                else if(ynum.X + Indent.X > 7 || ynum.X + Indent.X < 0 || ynum.Y + Indent.Y > 7 || ynum.Y + Indent.Y < 0)
                                 {
                                     
-                                    if (RunThrough == 0)
-                                        Indent = new Vector2(1, 1);
-
-                                    Looking = Num + Indent;
-
-                                    Console.WriteLine("Indent: " + Indent);
-                                    if (Num.Y + Indent.Y >= 8 || Num.Y + Indent.Y <= -1 || Num.X + Indent.X >= 8 || Num.X + Indent.X <= -1)
-                                    {
-                                        Console.WriteLine("Breach of Index");
-                                    }
-                                    else
-                                    {
-                                        
-                                        
-                                        
-                                        Console.WriteLine("Looking: " + Looking);
-                                        if (Grid.grid[(int)Looking.X, (int)Looking.Y].active == false)
-                                        {
-                                            if (Grid.grid[(int)Num.X, (int)Num.Y].counter == WL && Indent.Y > 0)
-                                            {
-                                                PW++;
-                                                Console.WriteLine("Added PW");
-                                            }
-                                            if (Grid.grid[(int)Num.X, (int)Num.Y].counter == WH)
-                                            {
-                                                PW++;
-                                                Console.WriteLine("Added PW");
-                                            }
-                                            if (Grid.grid[(int)Num.X, (int)Num.Y].counter == BL && Indent.Y < 0)
-                                            {
-                                                PB++;
-                                                Console.WriteLine("Added PW");
-                                            }
-                                            if (Grid.grid[(int)Num.X, (int)Num.Y].counter == BH)
-                                            {
-                                                PB++;
-                                                Console.WriteLine("Added PW");
-                                            }
-                                        }
-                                        
-                                    }
-
-                                    Looking2 = Looking + Indent;
-
-                                    if (Looking2.Y >= 8 || Looking2.Y <= -1 || Looking2.X >= 8 || Looking2.X <= -1)
-                                    {
-                                        Console.WriteLine("Breach of Index");
-                                    }
-                                    else
-                                    {
-                                        if (Grid.grid[(int)Num.X, (int)Num.Y].active == true && Grid.grid[(int)Looking.X, (int)Looking.Y].active == true && Grid.grid[(int)Looking2.X, (int)Looking2.Y].active == false)
-                                        {
-                                            if (Grid.grid[(int)Num.X, (int)Num.Y].counter == WL && Indent.Y > 0 && (Grid.grid[(int)Looking.X, (int)Looking.Y].counter == BL || Grid.grid[(int)Looking.X, (int)Looking.Y].counter == BH))
-                                                PW++;
-                                            if (Grid.grid[(int)Num.X, (int)Num.Y].counter == WH && (Grid.grid[(int)Looking.X, (int)Looking.Y].counter == BL || Grid.grid[(int)Looking.X, (int)Looking.Y].counter == BH))
-                                                PW++;
-                                            if (Grid.grid[(int)Num.X, (int)Num.Y].counter == BL && Indent.Y < 0 && (Grid.grid[(int)Looking.X, (int)Looking.Y].counter == WL || Grid.grid[(int)Looking.X, (int)Looking.Y].counter == WH))
-                                                PB++;
-                                            if (Grid.grid[(int)Num.X, (int)Num.Y].counter == BH && (Grid.grid[(int)Looking.X, (int)Looking.Y].counter == WL || Grid.grid[(int)Looking.X, (int)Looking.Y].counter == WH))
-                                                PB++;
-                                        }
-                                    }
-
-                                    Looking3 = Looking2 + Indent;
-                                    Looking4 = Looking3 + Indent;
-
-                                    if (Looking4.Y >= 8 || Looking4.Y <= -1 || Looking4.X >= 8 || Looking4.X <= -1)
-                                    {
-                                        Console.WriteLine("Breach of Index");
-                                    }
-                                    else
-                                    {
-                                        if (Grid.grid[(int)Num.X, (int)Num.Y].active == true && Grid.grid[(int)Looking.X, (int)Looking.Y].active == true && Grid.grid[(int)Looking2.X, (int)Looking2.Y].active == false && Grid.grid[(int)Looking3.X, (int)Looking3.Y].active == true && Grid.grid[(int)Looking4.X, (int)Looking4.Y].active == false)
-                                        {
-                                            if (Grid.grid[(int)Num.X, (int)Num.Y].counter == WL && Indent.Y > 0 && (Grid.grid[(int)Looking.X, (int)Looking.Y].counter == BL || Grid.grid[(int)Looking.X, (int)Looking.Y].counter == BH) && (Grid.grid[(int)Looking3.X, (int)Looking3.Y].counter == BL || Grid.grid[(int)Looking3.X, (int)Looking3.Y].counter == BH))
-                                                PW++;
-                                            if (Grid.grid[(int)Num.X, (int)Num.Y].counter == WH && (Grid.grid[(int)Looking.X, (int)Looking.Y].counter == BL || Grid.grid[(int)Looking.X, (int)Looking.Y].counter == BH) && (Grid.grid[(int)Looking3.X, (int)Looking3.Y].counter == BL || Grid.grid[(int)Looking3.X, (int)Looking3.Y].counter == BH))
-                                                PW++;
-                                            if (Grid.grid[(int)Num.X, (int)Num.Y].counter == BL && Indent.Y < 0 && (Grid.grid[(int)Looking.X, (int)Looking.Y].counter == WL || Grid.grid[(int)Looking.X, (int)Looking.Y].counter == WH) && (Grid.grid[(int)Looking3.X, (int)Looking3.Y].counter == WL || Grid.grid[(int)Looking3.X, (int)Looking3.Y].counter == WH))
-                                                PB++;
-                                            if (Grid.grid[(int)Num.X, (int)Num.Y].counter == BH && (Grid.grid[(int)Looking.X, (int)Looking.Y].counter == WL || Grid.grid[(int)Looking.X, (int)Looking.Y].counter == WH) && (Grid.grid[(int)Looking3.X, (int)Looking3.Y].counter == WL || Grid.grid[(int)Looking3.X, (int)Looking3.Y].counter == WH))
-                                                PB++;
-                                        }
-                                    }
-
-
-                                    CheckedPOptions++;
-                                    RunThrough++;
-                                    if (RunThrough == 1)
-                                        Indent = new Vector2(1, -1);
-                                    if (RunThrough == 2)
-                                        Indent = new Vector2(-1, 1);
-                                    if (RunThrough == 3)
-                                        Indent = new Vector2(-1, -1);
                                 }
-                                Console.WriteLine("Out While 2");
-                            }
-                            
-                        }
-                    }
-                    Console.WriteLine("PW: " + PW + " || PB: " + PB + " || Out of " + CheckedPOptions + " Checked Areas for Moves");
+                                RunThrough++;
 
-                    if (PB == 0 || PW == 0)
-                        Winner();
+                                
+                                
+
+                                if (RunThrough == 1)
+                                    Indent = new Vector2(-CheckValue, CheckValue);
+                                if (RunThrough == 2)
+                                    Indent = new Vector2(-CheckValue, -CheckValue);
+                                if (RunThrough == 3)
+                                    Indent = new Vector2(CheckValue, -CheckValue);
+                                
+                            }
+
+                            
+                            
+                            Console.WriteLine(PossibleWhiteMoves + " " + PossibleBlackMoves);
+                        }
+
+                    }
                 }
 
                 
-
-
             }
-            
-            NewTurn = false;
-        }
-
-        private void Winner()
-        {
-            if (PW == 0)
-            {
-                BlackWin = true;
-            }
-            if (BlackTaken == 8)
-            {
-                WhiteWin = true;
-            }
+       
         }
     }
 }

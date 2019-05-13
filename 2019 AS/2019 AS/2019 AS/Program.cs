@@ -24,6 +24,8 @@ namespace BoardGameCS
         const int Row = 0;
         const int Column = 1;
         const int Dame = 2;
+        
+
 
         struct MoveRecord
         {
@@ -112,28 +114,32 @@ namespace BoardGameCS
 
         private static void SetUpBoard(string[,] board, int[,] a, int[,] b, ref bool fileFound)
         {
-            string fileName = "game1.txt";
-            Console.Write("Do you want to load a saved game? (Y/N): ");
-            string answer = Console.ReadLine();
-            if (answer == "Y" || answer == "y")
+
+                string fileName = "game1.txt";
+                Console.Write("Do you want to load a saved game? (Y/N): ");
+                string answer = Console.ReadLine();
+            while (fileFound == false)
             {
-                Console.Write("Enter the filename: ");
-                fileName = Console.ReadLine();
-            }
-            try
-            {
-                StreamReader filehandle = new StreamReader(fileName);
-                fileFound = true;
-                LoadPieces(filehandle, a);
-                LoadPieces(filehandle, b);
-                filehandle.Close();
-                CreateNewBoard(board);
-                AddPlayerA(board, a);
-                AddPlayerB(board, b);
-            }
-            catch (Exception)
-            {
-                DisplayErrorCode(4);
+                if (answer == "Y" || answer == "y")
+                {
+                    Console.Write("Enter the filename: ");
+                    fileName = Console.ReadLine();
+                }
+                try
+                {
+                    StreamReader filehandle = new StreamReader(fileName);
+                    fileFound = true;
+                    LoadPieces(filehandle, a);
+                    LoadPieces(filehandle, b);
+                    filehandle.Close();
+                    CreateNewBoard(board);
+                    AddPlayerA(board, a);
+                    AddPlayerB(board, b);
+                }
+                catch (Exception)
+                {
+                    DisplayErrorCode(4);
+                }
             }
 
         }
@@ -371,6 +377,9 @@ namespace BoardGameCS
 
         private static int SelectMove(MoveRecord[] listOfMoves)
         {
+            bool ReChoose = false;
+
+
             bool validPiece = false, validMove, found, endOfList;
             string piece = "", rowString, columnString;
             int index = 0, chosenPieceIndex;
@@ -408,10 +417,13 @@ namespace BoardGameCS
             validMove = false;
             while (!validMove)
             {
+                
                 Console.Write("Which row do you want to move to? ");
                 rowString = Console.ReadLine();
                 Console.Write("Which column do you want to move to? ");
                 columnString = Console.ReadLine();
+                if (rowString == "exit" || columnString == "exit")
+                    
                 try
                 {
                     newRow = Convert.ToInt32(rowString);
@@ -530,14 +542,18 @@ namespace BoardGameCS
 
         private static string SwapPlayer(string nextPlayer)
         {
+            
             if (nextPlayer == "a")
             {
-                return "b";
+                
+                return "b"; 
             }
             else
             {
+                
                 return "a";
             }
+            
         }
 
         private static void PrintResult(int[,] a, int[,] b, string nextPlayer)
@@ -560,7 +576,15 @@ namespace BoardGameCS
                 listOfMoves[i] = tempRec;
             }
             bool fileFound = false, gameEnd = false;
-            string nextPlayer = "a";
+            Random random = new Random();
+            ///////////////////////Random starter
+            int num = random.Next(1,100);
+            string nextPlayer = null;
+            if (num < 50)
+                nextPlayer = "a";
+            else 
+                nextPlayer = "b";
+            //////////////////////////////
             int pieceIndex = 0;
             SetUpBoard(board, A, B, ref fileFound);
             if (!fileFound)
@@ -575,6 +599,9 @@ namespace BoardGameCS
                 ClearList(listOfMoves);
                 if (nextPlayer == "a")
                 {
+                    //////////////List number of moves A
+                    Console.WriteLine("Player A had made " + Convert.ToString(A[0, 0]) + " moves");
+                    /////////////////////////////////////////////////////////////
                     ListPossibleMoves(board, A, nextPlayer, listOfMoves);
                     if (!ListEmpty(listOfMoves))
                     {
@@ -589,6 +616,9 @@ namespace BoardGameCS
                 }
                 else
                 {
+                    ////////////////List number of turns B
+                    Console.WriteLine("Player B had made " + Convert.ToString(B[0, 0]) + " moves");
+                    /////////////////////////////////////////////////////////////
                     ListPossibleMoves(board, B, nextPlayer, listOfMoves);
                     if (!ListEmpty(listOfMoves))
                     {
