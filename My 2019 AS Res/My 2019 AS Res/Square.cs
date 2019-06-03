@@ -47,6 +47,8 @@ namespace My_2019_AS_Res
     public class Square
     {
         public bool active = false;
+        public bool PossibleMoveW = false;
+        public bool PossibleMoveB = false;
         public int X, Y, Offset;
         public Color SquareColour;
         public Texture2D counter;
