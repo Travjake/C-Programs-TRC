@@ -41,8 +41,10 @@ namespace My_2019_AS_Res
         //Vectors
         Vector2 MousePos, CounterPos,SelectedCounter;
         //Form the Grid
-        const int rows = 8;
-        const int cols = 8;
+
+        const int Constwo = 2;
+        static int rows = 8;
+        static int cols = 8;
         bool[,] background = new bool[rows, cols];
         //bool
         bool turn = false;
@@ -71,6 +73,8 @@ namespace My_2019_AS_Res
         int PB = -1;
         int PW = -1;
         Board Grid = new Board();
+        int Height = 1200;
+        int Width = 1350;
         //Structs
         
         enum GameState
@@ -87,8 +91,8 @@ namespace My_2019_AS_Res
             IsMouseVisible = true;
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
-            graphics.PreferredBackBufferHeight = 900;//Set screen Height
-            graphics.PreferredBackBufferWidth = 1000;//Set screen width
+            graphics.PreferredBackBufferHeight = Height;//Set screen Height
+            graphics.PreferredBackBufferWidth = Width;//Set screen width
             graphics.ApplyChanges();
         }
 
@@ -147,6 +151,7 @@ namespace My_2019_AS_Res
             {
                 new SelectElement("Video", new[]{"Windowed","FullScreen"}),
                 new NumericElement("Music",1,3,0f,10f,1f),
+                new NumericElement("Rows",8,3,0f,10f,2f),
                 new TextElement("Back")
             });
 
@@ -161,10 +166,14 @@ namespace My_2019_AS_Res
             pixel = new Texture2D(GraphicsDevice, 1, 1, false, SurfaceFormat.Color);
             pixel.SetData(new[] { Color.Black }); // so that we can draw whatever color we want on top of it 
 
-            Grid.Init();//Runs grid method and draws grid
-            SetCounters(Grid);// places counters passing ifo from the grid method
-            CounterPos = new Vector2(-1, -1);
-            SelectedCounter = CounterPos;
+            if (state == GameState.Playing)
+            {
+                Grid.Init();//Runs grid method and draws grid
+                SetCounters(Grid);// places counters passing ifo from the grid method
+                CounterPos = new Vector2(-1, -1);
+                SelectedCounter = CounterPos;
+            }
+            
             // TODO: use this.Content to load your game content here
         }
 
@@ -178,13 +187,13 @@ namespace My_2019_AS_Res
             {
                 for (int xcor = 0; xcor < 8; xcor++)// same on x axis
                 {
-                    if(Grid.grid[xcor,ycor].SquareColour == Color.White && Grid.grid[xcor, ycor].Y * 100 < 200)//declares where counters should be drawn and what colour
+                    if(Grid.grid[xcor,ycor].SquareColour == Color.White && Grid.grid[xcor, ycor].Y * 100 < 200 && Grid.grid[xcor, ycor].X * 100 <+ rows * 100)//declares where counters should be drawn and what colour
                     {
                         Grid.grid[xcor, ycor].counter = WL;//the drawn counter in this area
                         Grid.grid[xcor, ycor].active =true;
                         
                     }
-                    if (Grid.grid[xcor, ycor].SquareColour == Color.White && Grid.grid[xcor, ycor].Y * 100 >= 600)//""
+                    if (Grid.grid[xcor, ycor].SquareColour == Color.White && Grid.grid[xcor, ycor].X * 100 < rows * 100 && Grid.grid[xcor, ycor].Y * 100 < cols * 100 && Grid.grid[xcor, ycor].Y * 100 >= (cols * 100) - 200)//""
                     {
                         Grid.grid[xcor, ycor].counter = BL;//""
                         Grid.grid[xcor, ycor].active = true;
@@ -219,6 +228,8 @@ namespace My_2019_AS_Res
                 case GameState.MainMenu:
                     KeyboardState keys = Keyboard.GetState();
                     bool change = true;
+                    
+                    
 
                     if (!Halt.Enabled)
                     {
@@ -250,6 +261,8 @@ namespace My_2019_AS_Res
                                 else if (test == "Play")
                                 {
                                     state = GameState.Playing;
+                                    LoadContent();
+                                    
                                 }
                             }
 
@@ -269,6 +282,11 @@ namespace My_2019_AS_Res
                                 graphics.IsFullScreen = (currentscreen.GetCurrentValue() == "FullScreen");
                                 graphics.ApplyChanges();
                             }
+                            if (currentscreen.GetCurrentCaption() == "Rows")
+                            {
+                                rows = rows - 2;
+                                cols = cols - 2;
+                            }
                         }
 
                         else if (keys.IsKeyDown(Keys.Right))
@@ -278,6 +296,11 @@ namespace My_2019_AS_Res
                             {
                                 graphics.IsFullScreen = (currentscreen.GetCurrentValue() == "FullScreen");
                                 graphics.ApplyChanges();
+                            }
+                            if (currentscreen.GetCurrentCaption() == "Rows")
+                            {
+                                rows = rows + 2;
+                                cols = cols + 2;
                             }
                         }
                         else
@@ -966,10 +989,10 @@ namespace My_2019_AS_Res
 
                     spriteBatch.Begin(); // Specifies the beginning of drawing
                                          // draws the boards of the board
-                    spriteBatch.Draw(pixel, new Rectangle(0, 0, 800, 2), Color.Black);//Top
-                    spriteBatch.Draw(pixel, new Rectangle(0, 800, 802, 2), Color.Black);//Bottom
-                    spriteBatch.Draw(pixel, new Rectangle(0, 0, 2, 800), Color.Black);//Left
-                    spriteBatch.Draw(pixel, new Rectangle(800, 0, 2, 800), Color.Black);//Right
+                    //spriteBatch.Draw(pixel, new Rectangle(0, 0, rows * (Width - 100 ) / 9, Height / 450), Color.Black);//Top
+                    //spriteBatch.Draw(pixel, new Rectangle(0, cols * (Height / 9), rows * 100 + 2, Height / 450), Color.Black);//Bottom
+                    //spriteBatch.Draw(pixel, new Rectangle(0, 0, Width / 500, cols * 100), Color.Black);//Left
+                    //spriteBatch.Draw(pixel, new Rectangle(rows * 100, 0, Width / 500, cols * 100), Color.Black);//Right
 
                     spriteBatch.Draw(WL, new Vector2(860, 364)); // Draws counters under counters lost
                     spriteBatch.Draw(BL, new Vector2(860, 464));
