@@ -80,7 +80,8 @@ namespace My_2019_AS_Res
         Board Grid = new Board();
         int Height = 1350;
         int Width = 1500;
-        int BlackCounterRows = 2, WhiteCounterRows = 2;
+        int BlackCounterRows = 2; 
+        int WhiteCounterRows = 2;
         Single WCR, BCR;
         //Structs
         
@@ -198,20 +199,20 @@ namespace My_2019_AS_Res
         {
 
 
-            //int BBonus = (BlackCounterRows - 2) * 100;
-            //int Bonus = (BlackCounterRows - 2) * 100;
+            int BBonus = (BlackCounterRows - 2) * 100;
+            int WBonus = (WhiteCounterRows - 2) * 100;
 
             for (int ycor = 0; ycor < cols; ycor++) // Cycles through all squares on y axis
             {
                 for (int xcor = 0; xcor < rows; xcor++)// same on x axis
                 {
-                    if(Grid.grid[xcor,ycor].SquareColour == Color.White && Grid.grid[xcor, ycor].Y * 100 < 200 && Grid.grid[xcor, ycor].X * 100 <= rows * 100)//declares where counters should be drawn and what colour
+                    if(Grid.grid[xcor,ycor].SquareColour == Color.White && Grid.grid[xcor, ycor].Y * 100 < (200 + WBonus) && Grid.grid[xcor, ycor].X * 100 <= rows * 100)//declares where counters should be drawn and what colour
                     {
                         Grid.grid[xcor, ycor].counter = WL;//the drawn counter in this area
                         Grid.grid[xcor, ycor].active =true;
                         
                     }
-                    if (Grid.grid[xcor, ycor].SquareColour == Color.White && Grid.grid[xcor, ycor].X * 100 < rows * 100 && Grid.grid[xcor, ycor].Y * 100 < cols && Grid.grid[xcor, ycor].Y * 100 >= (cols * 100) - 200)//""
+                    if (Grid.grid[xcor, ycor].SquareColour == Color.White && Grid.grid[xcor, ycor].X * 100 < rows * 100 && Grid.grid[xcor, ycor].Y * 100 < cols * 100 && Grid.grid[xcor, ycor].Y * 100 >= (cols * 100) - (200 + BBonus))//""
                     {
                         Grid.grid[xcor, ycor].counter = BL;//""
                         Grid.grid[xcor, ycor].active = true;
@@ -323,8 +324,9 @@ namespace My_2019_AS_Res
                             if (currentscreen.GetCurrentCaption() == "Black\n  Rows\n")
                             {
                                 BlackCounterRows--;
+                                ;
                             }
-                            if (currentscreen.GetCurrentCaption() == "White\n Rows\n")
+                            if (currentscreen.GetCurrentCaption() == "White\n  Rows\n          * Black Rows + White Rows must be less than Rows & Cols.\n")
                             {
                                 WhiteCounterRows--;
                             }
@@ -348,7 +350,7 @@ namespace My_2019_AS_Res
                             {
                                 BlackCounterRows++;
                             }
-                            if (currentscreen.GetCurrentCaption() == "White\n Rows\n")
+                            if (currentscreen.GetCurrentCaption() == "White\n  Rows\n          * Black Rows + White Rows must be less than Rows & Cols.\n")
                             {
                                 WhiteCounterRows++;
                             }
@@ -944,7 +946,7 @@ namespace My_2019_AS_Res
                         if (Grid.grid[SelectedX, SelectedY].active == false) // Allows you unhighlight a counter by pressing on an inactive square
                             SelectedCounter = new Vector2(-1, -1);
 
-                        if (SelectedY == 7 && Grid.grid[SelectedX, SelectedY].counter == WL) // Criteria for when a white is crowned to a higher piece (furthest away square possible)
+                        if (SelectedY == cols && Grid.grid[SelectedX, SelectedY].counter == WL) // Criteria for when a white is crowned to a higher piece (furthest away square possible)
                         {
                             Grid.grid[SelectedX, SelectedY].counter = WH;
                         }
