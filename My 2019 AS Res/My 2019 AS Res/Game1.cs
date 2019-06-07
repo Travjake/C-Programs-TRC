@@ -197,8 +197,9 @@ namespace My_2019_AS_Res
         public void SetCounters(Board B)
         {
 
-            
-            
+
+            //int BBonus = (BlackCounterRows - 2) * 100;
+            //int Bonus = (BlackCounterRows - 2) * 100;
 
             for (int ycor = 0; ycor < cols; ycor++) // Cycles through all squares on y axis
             {
@@ -210,7 +211,7 @@ namespace My_2019_AS_Res
                         Grid.grid[xcor, ycor].active =true;
                         
                     }
-                    if (Grid.grid[xcor, ycor].SquareColour == Color.White && Grid.grid[xcor, ycor].X * 100 < rows * 100 && Grid.grid[xcor, ycor].Y * 100 < cols * 100 && Grid.grid[xcor, ycor].Y * 100 >= (cols * 100) - 200)//""
+                    if (Grid.grid[xcor, ycor].SquareColour == Color.White && Grid.grid[xcor, ycor].X * 100 < rows * 100 && Grid.grid[xcor, ycor].Y * 100 < cols && Grid.grid[xcor, ycor].Y * 100 >= (cols * 100) - 200)//""
                     {
                         Grid.grid[xcor, ycor].counter = BL;//""
                         Grid.grid[xcor, ycor].active = true;
@@ -254,7 +255,7 @@ namespace My_2019_AS_Res
 
 
                 switch (state)
-            {
+                {
                 case GameState.MainMenu:
                     KeyboardState keys = Keyboard.GetState();
                     bool change = true;
@@ -314,7 +315,7 @@ namespace My_2019_AS_Res
                                 graphics.IsFullScreen = (currentscreen.GetCurrentValue() == "FullScreen");
                                 graphics.ApplyChanges();
                             }
-                            if (currentscreen.GetCurrentCaption() == "Rows \n   & Cols")
+                            if (currentscreen.GetCurrentCaption() == "Rows \n  & Cols\n")
                             {
                                 rows = rows - 2;
                                 cols = cols - 2;
@@ -337,7 +338,7 @@ namespace My_2019_AS_Res
                                 graphics.IsFullScreen = (currentscreen.GetCurrentValue() == "FullScreen");
                                 graphics.ApplyChanges();
                             }
-                            if (currentscreen.GetCurrentCaption() == "Rows \n   & Cols")
+                            if (currentscreen.GetCurrentCaption() == "Rows \n  & Cols\n")
                             {
                                 rows = rows + 2;
                                 cols = cols + 2;
@@ -390,7 +391,12 @@ namespace My_2019_AS_Res
                         Exit();
 
                     if (Keyboard.GetState().IsKeyDown(Keys.M))
+                    {
+                        LoadContent();
+                        currentscreen = menu;
                         state = GameState.MainMenu;
+                        
+                    }
 
                         if (State.LeftButton == ButtonState.Pressed && !Halt.Enabled && State.X > 5 && State.X < 265 && State.Y > Height - 45 && State.Y < Height - 15 && turn == false) // Turns on showing whites possible moves
                     {
@@ -961,6 +967,7 @@ namespace My_2019_AS_Res
                         if ((WhiteWin == true || BlackWin == true) && Keyboard.GetState().IsKeyDown(Keys.Enter))// Allows you to exit the game by pressing Esc when a teams won 
                         {
                             LoadContent();
+                            currentscreen = menu;
                             state = GameState.MainMenu;
                         }
                     }
