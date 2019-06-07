@@ -54,6 +54,8 @@ namespace My_2019_AS_Res
         bool FirstTurn = true;
         bool ShowPossibleB = false;
         bool ShowPossibleW = false;
+        bool Overload = false;
+        bool First = true;
         //SaveGame
        
         //string
@@ -78,6 +80,8 @@ namespace My_2019_AS_Res
         Board Grid = new Board();
         int Height = 1350;
         int Width = 1500;
+        int BlackCounterRows = 2, WhiteCounterRows = 2;
+        Single WCR, BCR;
         //Structs
         
         enum GameState
@@ -123,6 +127,8 @@ namespace My_2019_AS_Res
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
+            
+
             //Load Textures
             BlackSquare = Content.Load<Texture2D>("Black Square");
             WH = Content.Load<Texture2D>("White Higher2");
@@ -154,8 +160,9 @@ namespace My_2019_AS_Res
             {
                 //new SelectElement("Video", new[]{"Windowed","FullScreen"}),
                 //new NumericElement("Music",1,3,0f,10f,1f),
-                new NumericElement("Rows \n   & Cols",8,3,0f,18f,2f),
-                
+                new NumericElement("Rows \n  & Cols\n",8,3,0f,18f,2f),
+                new NumericElement("Black\n  Rows\n",2,3,0f,9f,1f),
+                new NumericElement("White\n  Rows\n          * Black Rows + White Rows must be less than Rows & Cols.\n",2,3,0f,9f,1f),
                 new TextElement("Back")
             });
 
@@ -166,7 +173,7 @@ namespace My_2019_AS_Res
                 new TextElement("       2019-2020"),
             });
 
-            currentscreen = menu;
+            
             pixel = new Texture2D(GraphicsDevice, 1, 1, false, SurfaceFormat.Color);
             pixel.SetData(new[] { Color.Black }); // so that we can draw whatever color we want on top of it 
 
@@ -177,8 +184,14 @@ namespace My_2019_AS_Res
                 CounterPos = new Vector2(-1, -1);
                 SelectedCounter = CounterPos;
             }
-            
+
             // TODO: use this.Content to load your game content here
+
+            if (First == true)
+            {
+                First = false;
+                currentscreen = menu;
+            }
         }
 
         public void SetCounters(Board B)
@@ -229,7 +242,18 @@ namespace My_2019_AS_Res
         {
             BlackSquareHeight = (Height - (Height / 10)) / cols;
             BlackSquareWidth = (Width - (Width / 6)) / rows;
-            switch (state)
+
+            if (BlackCounterRows + WhiteCounterRows <= cols)
+                Overload = false;
+
+            if (BlackCounterRows + WhiteCounterRows > cols)
+                Overload = true;
+
+            
+
+
+
+                switch (state)
             {
                 case GameState.MainMenu:
                     KeyboardState keys = Keyboard.GetState();
@@ -264,7 +288,7 @@ namespace My_2019_AS_Res
                                 {
                                     currentscreen = credits;
                                 }
-                                else if (test == "Play")
+                                else if (test == "Play" && Overload == false)
                                 {
                                     state = GameState.Playing;
                                     LoadContent();
@@ -277,6 +301,8 @@ namespace My_2019_AS_Res
                                 if (test == "Back")
                                 {
                                     currentscreen = menu;
+                                    if (cols < WhiteCounterRows + BlackCounterRows)
+                                        Overload = true;
                                 }
                             }
                         }
@@ -293,6 +319,14 @@ namespace My_2019_AS_Res
                                 rows = rows - 2;
                                 cols = cols - 2;
                             }
+                            if (currentscreen.GetCurrentCaption() == "Black\n  Rows\n")
+                            {
+                                BlackCounterRows--;
+                            }
+                            if (currentscreen.GetCurrentCaption() == "White\n Rows\n")
+                            {
+                                WhiteCounterRows--;
+                            }
                         }
 
                         else if (keys.IsKeyDown(Keys.Right))
@@ -307,6 +341,15 @@ namespace My_2019_AS_Res
                             {
                                 rows = rows + 2;
                                 cols = cols + 2;
+                                
+                            }
+                            if (currentscreen.GetCurrentCaption() == "Black\n  Rows\n")
+                            {
+                                BlackCounterRows++;
+                            }
+                            if (currentscreen.GetCurrentCaption() == "White\n Rows\n")
+                            {
+                                WhiteCounterRows++;
                             }
                         }
                         else
@@ -346,7 +389,10 @@ namespace My_2019_AS_Res
                     if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                         Exit();
 
-                    if (State.LeftButton == ButtonState.Pressed && !Halt.Enabled && State.X > 7 && State.X < 260 && State.Y > 865 && State.Y < 890 && turn == false) // Turns on showing whites possible moves
+                    if (Keyboard.GetState().IsKeyDown(Keys.M))
+                        state = GameState.MainMenu;
+
+                        if (State.LeftButton == ButtonState.Pressed && !Halt.Enabled && State.X > 5 && State.X < 265 && State.Y > Height - 45 && State.Y < Height - 15 && turn == false) // Turns on showing whites possible moves
                     {
                         if (ShowPossibleW == true)
                             ShowPossibleW = false;
@@ -357,7 +403,7 @@ namespace My_2019_AS_Res
                         Halt.Enabled = true;
                     }
 
-                    if (State.LeftButton == ButtonState.Pressed && !Halt.Enabled && State.X > 285 && State.X < 535 && State.Y > 865 && State.Y < 885 && turn == true)// "" But black
+                    if (State.LeftButton == ButtonState.Pressed && !Halt.Enabled && State.X > 280 && State.X < 540 && State.Y > Height - 45 && State.Y < Height - 15 && turn == true)// "" But black
                     {
                         if (ShowPossibleB == true)
                             ShowPossibleB = false;
@@ -998,6 +1044,10 @@ namespace My_2019_AS_Res
 
                     spriteBatch.Begin(); // Specifies the beginning of drawing
                                          // draws the boards of the board
+
+                    
+
+
                     spriteBatch.Draw(pixel, new Rectangle(0, 0,rows * BlackSquareWidth , BlackSquareHeight / 50), Color.Black);//Top  x,y,xl,yl
                     spriteBatch.Draw(pixel, new Rectangle(0, cols * BlackSquareHeight, rows * BlackSquareWidth + 2, BlackSquareHeight / 50), Color.Black);//Bottom
                     spriteBatch.Draw(pixel, new Rectangle(0, 0, BlackSquareWidth / 50, cols * BlackSquareHeight), Color.Black);//Left
@@ -1008,6 +1058,10 @@ namespace My_2019_AS_Res
                     spriteBatch.DrawString(Label, "Counters\n       Lost:", new Vector2(Width - 175, Height - (Height / 200 * 138)), Color.Black); // draws the text for counters lost
                     spriteBatch.DrawString(Label, "x " + WhiteTaken, new Vector2(Width - 90, Height - (Height / 200 * 124)), Color.Black);
                     spriteBatch.DrawString(Label, "x " + BlackTaken, new Vector2(Width - 90, Height - (Height / 200 * 111)), Color.Black);
+
+                    
+                    
+                    
 
                     Vector2 start = new Vector2(rows * BlackSquareWidth + (BlackSquareWidth / 5), BlackSquareHeight / 2 - (BlackSquareHeight / 20));
                     Vector2 increm = new Vector2(0, BlackSquareHeight);
@@ -1036,7 +1090,7 @@ namespace My_2019_AS_Res
 
                     ////////////////////////////////SpriteFonts
 
-                    spriteBatch.DrawString(Label, "Possible White Moves: " + PW + " || Possible Black Moves: " + PB + " || Turn: " + WhosTurn, new Vector2(10, Height - (Height / 100 * 4)), Color.Black); // HUD at the bottom of the screen
+                    spriteBatch.DrawString(Label, "Possible White Moves: " + PW + " || Possible Black Moves: " + PB + " || Turn: " + WhosTurn, new Vector2(10, Height - 40), Color.Black); // HUD at the bottom of the screen
 
                     if (BlackWin == true)
                     {
