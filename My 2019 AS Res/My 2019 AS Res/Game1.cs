@@ -45,7 +45,7 @@ namespace My_2019_AS_Res
         const int Constwo = 2;
         static int rows = 8;
         static int cols = 8;
-        bool[,] background = new bool[rows, cols];
+        bool[,] background = new bool[20, 20];
         //bool
         bool turn = false;
         bool WhiteWin;
@@ -70,11 +70,14 @@ namespace My_2019_AS_Res
         int SelectedY = 0;
         int WhiteTaken = 0;
         int BlackTaken = 0;
+        double IncScale, IncScale2;
         int PB = -1;
         int PW = -1;
+        int BlackSquareHeight;
+        int BlackSquareWidth;
         Board Grid = new Board();
-        int Height = 1200;
-        int Width = 1350;
+        int Height = 1350;
+        int Width = 1500;
         //Structs
         
         enum GameState
@@ -149,9 +152,10 @@ namespace My_2019_AS_Res
 
             settings = new SimpleTextUI(this, big, new TextElement[]
             {
-                new SelectElement("Video", new[]{"Windowed","FullScreen"}),
-                new NumericElement("Music",1,3,0f,10f,1f),
-                new NumericElement("Rows",8,3,0f,10f,2f),
+                //new SelectElement("Video", new[]{"Windowed","FullScreen"}),
+                //new NumericElement("Music",1,3,0f,10f,1f),
+                new NumericElement("Rows \n   & Cols",8,3,0f,18f,2f),
+                
                 new TextElement("Back")
             });
 
@@ -168,7 +172,7 @@ namespace My_2019_AS_Res
 
             if (state == GameState.Playing)
             {
-                Grid.Init();//Runs grid method and draws grid
+                Grid.Init(rows, cols, BlackSquareWidth, BlackSquareHeight);//Runs grid method and draws grid
                 SetCounters(Grid);// places counters passing ifo from the grid method
                 CounterPos = new Vector2(-1, -1);
                 SelectedCounter = CounterPos;
@@ -183,11 +187,11 @@ namespace My_2019_AS_Res
             
             
 
-            for (int ycor = 0; ycor < 8; ycor++) // Cycles through all squares on y axis
+            for (int ycor = 0; ycor < cols; ycor++) // Cycles through all squares on y axis
             {
-                for (int xcor = 0; xcor < 8; xcor++)// same on x axis
+                for (int xcor = 0; xcor < rows; xcor++)// same on x axis
                 {
-                    if(Grid.grid[xcor,ycor].SquareColour == Color.White && Grid.grid[xcor, ycor].Y * 100 < 200 && Grid.grid[xcor, ycor].X * 100 <+ rows * 100)//declares where counters should be drawn and what colour
+                    if(Grid.grid[xcor,ycor].SquareColour == Color.White && Grid.grid[xcor, ycor].Y * 100 < 200 && Grid.grid[xcor, ycor].X * 100 <= rows * 100)//declares where counters should be drawn and what colour
                     {
                         Grid.grid[xcor, ycor].counter = WL;//the drawn counter in this area
                         Grid.grid[xcor, ycor].active =true;
@@ -223,6 +227,8 @@ namespace My_2019_AS_Res
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
+            BlackSquareHeight = (Height - (Height / 10)) / cols;
+            BlackSquareWidth = (Width - (Width / 6)) / rows;
             switch (state)
             {
                 case GameState.MainMenu:
@@ -282,7 +288,7 @@ namespace My_2019_AS_Res
                                 graphics.IsFullScreen = (currentscreen.GetCurrentValue() == "FullScreen");
                                 graphics.ApplyChanges();
                             }
-                            if (currentscreen.GetCurrentCaption() == "Rows")
+                            if (currentscreen.GetCurrentCaption() == "Rows \n   & Cols")
                             {
                                 rows = rows - 2;
                                 cols = cols - 2;
@@ -297,7 +303,7 @@ namespace My_2019_AS_Res
                                 graphics.IsFullScreen = (currentscreen.GetCurrentValue() == "FullScreen");
                                 graphics.ApplyChanges();
                             }
-                            if (currentscreen.GetCurrentCaption() == "Rows")
+                            if (currentscreen.GetCurrentCaption() == "Rows \n   & Cols")
                             {
                                 rows = rows + 2;
                                 cols = cols + 2;
@@ -328,6 +334,9 @@ namespace My_2019_AS_Res
 
                         FirstTurn = false;
                     }
+
+                    IncScale = (((double)(BlackSquareWidth + BlackSquareHeight) / 2) / 100 * 30);
+                    IncScale2 = (((double)(BlackSquareWidth + BlackSquareHeight) / 2) - IncScale) / 80;
 
 
                     MouseState State = Mouse.GetState(); // Gets state of mouse (x, y,pressed etc)
@@ -365,10 +374,10 @@ namespace My_2019_AS_Res
                     if (State.LeftButton == ButtonState.Pressed && !Halt.Enabled)
                     {
 
-                        int SelectedAreaXOverflow = State.X % 100;
-                        int SelectedAreaYOverflow = State.Y % 100;
-                        SelectedX = ((State.X - SelectedAreaXOverflow) / 100);
-                        SelectedY = ((State.Y - SelectedAreaYOverflow) / 100);
+                        int SelectedAreaXOverflow = State.X % BlackSquareWidth;
+                        int SelectedAreaYOverflow = State.Y % BlackSquareHeight;
+                        SelectedX = ((State.X - SelectedAreaXOverflow) / BlackSquareWidth);
+                        SelectedY = ((State.Y - SelectedAreaYOverflow) / BlackSquareHeight);
                         Console.WriteLine("Clicked COOR " + (SelectedX) + " " + (SelectedY));
                         Console.WriteLine("Clicked X,Y " + (State.X) + " " + (State.Y));
                         //Above calculates the grid coordinates of where is pressed
@@ -972,13 +981,13 @@ namespace My_2019_AS_Res
                         for (int c = 0; c < cols; c++)
                         {
                             if (background[r, c])
-                                spriteBatch.Draw(BlackSquare, new Rectangle(c * BlackSquare.Width, r * BlackSquare.Height, BlackSquare.Width, BlackSquare.Height), Color.Blue); //Draws the physical squares
+                                spriteBatch.Draw(BlackSquare, new Rectangle(c * BlackSquareWidth, r * BlackSquareHeight, BlackSquareWidth, BlackSquareHeight), Color.Blue); //Draws the physical squares
 
                             if (Grid.grid[r, c].PossibleMoveB == true && ShowPossibleB == true && turn == true) // Draws the placemarkers for possible moves if criteria is met
-                                spriteBatch.Draw(Marker, new Vector2((r * 100), (c * 100)));
+                                spriteBatch.Draw(Marker, new Vector2((float)(r * BlackSquareWidth + ((BlackSquareWidth - 100 * IncScale2) / 2)), (float)(c * BlackSquareHeight + ((BlackSquareHeight - 100 * IncScale2) / 2))), null, Color.White, 0f, Vector2.Zero, (float)IncScale2, SpriteEffects.None, 0f); 
 
                             if (Grid.grid[r, c].PossibleMoveW == true && ShowPossibleW == true && turn == false) // "" but for white counters 
-                                spriteBatch.Draw(Marker2, new Vector2((r * 100), (c * 100)));
+                                spriteBatch.Draw(Marker2, new Vector2((float)(r * BlackSquareWidth + ((BlackSquareWidth - 100 * IncScale2) / 2)), (float)(c * BlackSquareHeight + ((BlackSquareHeight - 100 * IncScale2) / 2))), null, Color.White, 0f, Vector2.Zero, (float)IncScale2, SpriteEffects.None, 0f);
 
 
 
@@ -989,28 +998,28 @@ namespace My_2019_AS_Res
 
                     spriteBatch.Begin(); // Specifies the beginning of drawing
                                          // draws the boards of the board
-                    //spriteBatch.Draw(pixel, new Rectangle(0, 0, rows * (Width - 100 ) / 9, Height / 450), Color.Black);//Top
-                    //spriteBatch.Draw(pixel, new Rectangle(0, cols * (Height / 9), rows * 100 + 2, Height / 450), Color.Black);//Bottom
-                    //spriteBatch.Draw(pixel, new Rectangle(0, 0, Width / 500, cols * 100), Color.Black);//Left
-                    //spriteBatch.Draw(pixel, new Rectangle(rows * 100, 0, Width / 500, cols * 100), Color.Black);//Right
+                    spriteBatch.Draw(pixel, new Rectangle(0, 0,rows * BlackSquareWidth , BlackSquareHeight / 50), Color.Black);//Top  x,y,xl,yl
+                    spriteBatch.Draw(pixel, new Rectangle(0, cols * BlackSquareHeight, rows * BlackSquareWidth + 2, BlackSquareHeight / 50), Color.Black);//Bottom
+                    spriteBatch.Draw(pixel, new Rectangle(0, 0, BlackSquareWidth / 50, cols * BlackSquareHeight), Color.Black);//Left
+                    spriteBatch.Draw(pixel, new Rectangle(rows * BlackSquareWidth, 0, BlackSquareWidth / 50, cols * BlackSquareHeight), Color.Black);//Right
 
-                    spriteBatch.Draw(WL, new Vector2(860, 364)); // Draws counters under counters lost
-                    spriteBatch.Draw(BL, new Vector2(860, 464));
-                    spriteBatch.DrawString(Label, "Counters\n       Lost:", new Vector2(860, 310), Color.Black); // draws the text for counters lost
-                    spriteBatch.DrawString(Label, "x " + WhiteTaken, new Vector2(940, 390), Color.Black);
-                    spriteBatch.DrawString(Label, "x " + BlackTaken, new Vector2(940, 490), Color.Black);
+                    spriteBatch.Draw(WL, new Vector2(Width - (Width / 100 * 11), Height - (Height / 100 * 59))); // Draws counters under counters lost
+                    spriteBatch.Draw(BL, new Vector2(Width - (Width / 100 * 11), Height - (Height / 100 * 53)));
+                    spriteBatch.DrawString(Label, "Counters\n       Lost:", new Vector2(Width - 175, Height - (Height / 200 * 138)), Color.Black); // draws the text for counters lost
+                    spriteBatch.DrawString(Label, "x " + WhiteTaken, new Vector2(Width - 90, Height - (Height / 200 * 124)), Color.Black);
+                    spriteBatch.DrawString(Label, "x " + BlackTaken, new Vector2(Width - 90, Height - (Height / 200 * 111)), Color.Black);
 
-                    Vector2 start = new Vector2(820, 40);
-                    Vector2 increm = new Vector2(0, 100);
-                    for (int i = 0; i < 8; i++)
+                    Vector2 start = new Vector2(rows * BlackSquareWidth + (BlackSquareWidth / 5), BlackSquareHeight / 2 - (BlackSquareHeight / 20));
+                    Vector2 increm = new Vector2(0, BlackSquareHeight);
+                    for (int i = 0; i < cols; i++)
                     {
                         spriteBatch.DrawString(Label, Convert.ToString(i + 1), start, Color.Black); // draws nums on y of the board
                         start += increm;
                     }
 
-                    start = new Vector2(47, 820);
-                    increm = new Vector2(100, 0);
-                    for (int i = 0; i < 8; i++)
+                    start = new Vector2(BlackSquareWidth / 2 - (BlackSquareWidth / 20), cols * BlackSquareHeight + (BlackSquareHeight / 5));
+                    increm = new Vector2(BlackSquareWidth, 0);
+                    for (int i = 0; i < rows; i++)
                     {
                         spriteBatch.DrawString(Label, Convert.ToString(i + 1), start, Color.Black); // Draws nums on x of the board
                         start += increm;
@@ -1023,11 +1032,11 @@ namespace My_2019_AS_Res
                     pixel.SetData(new[] { Color.White });
 
 
-                    Grid.Draw(spriteBatch);
+                    Grid.Draw(spriteBatch, BlackSquareWidth , BlackSquareHeight);
 
                     ////////////////////////////////SpriteFonts
 
-                    spriteBatch.DrawString(Label, "Possible White Moves: " + PW + " || Possible Black Moves: " + PB + " || Turn: " + WhosTurn, new Vector2(10, 865), Color.Black); // HUD at the bottom of the screen
+                    spriteBatch.DrawString(Label, "Possible White Moves: " + PW + " || Possible Black Moves: " + PB + " || Turn: " + WhosTurn, new Vector2(10, Height - (Height / 100 * 4)), Color.Black); // HUD at the bottom of the screen
 
                     if (BlackWin == true)
                     {
@@ -1056,7 +1065,8 @@ namespace My_2019_AS_Res
                     spriteBatch.End();
 
                     spriteBatch.Begin();
-                    spriteBatch.Draw(CS, new Vector2(SelectedCounter.X * 100 + 15, SelectedCounter.Y * 100 + 15), Color.Yellow);
+                    //spriteBatch.Draw(CS, new Vector2((float)(SelectedCounter.X * BlackSquareWidth + ((BlackSquareWidth - 75) / 2) / IncScale2), (float)(SelectedCounter.Y * BlackSquareHeight + ((BlackSquareHeight - 75) / 2) / IncScale2), Color.Yellow);
+                    spriteBatch.Draw(CS, new Vector2((float)(SelectedCounter.X * BlackSquareWidth + ((BlackSquareWidth - 70 * IncScale2) / 2)), (float)(SelectedCounter.Y * BlackSquareHeight + ((BlackSquareHeight - 70 * IncScale2) / 2))), null, Color.White, 0f, Vector2.Zero, (float)IncScale2, SpriteEffects.None, 0f);
                     spriteBatch.End();
                     break;
             }
@@ -1098,9 +1108,9 @@ namespace My_2019_AS_Res
                 PB = 0;
                 PW = 0;
 
-                for (int xreset = 0; xreset < 8; xreset++)
+                for (int xreset = 0; xreset < rows; xreset++)
                 {
-                    for (int yreset = 0; yreset < 8; yreset++)
+                    for (int yreset = 0; yreset < cols; yreset++)
                     {
                         Grid.grid[xreset, yreset].PossibleMoveW = false;
                         Grid.grid[xreset, yreset].PossibleMoveB = false;
@@ -1109,9 +1119,9 @@ namespace My_2019_AS_Res
 
                 while (RunThrough <= 3)
                 {
-                    for (Num.Y = 0; Num.Y < 8; Num.Y++)
+                    for (Num.Y = 0; Num.Y < cols; Num.Y++)
                     {
-                        for (Num.X = 0; Num.X < 8; Num.X++)
+                        for (Num.X = 0; Num.X < rows; Num.X++)
                         {
                             if (Grid.grid[(int)Num.X, (int)Num.Y].active == true)
                             {
@@ -1126,7 +1136,7 @@ namespace My_2019_AS_Res
                                     Looking = Num + Indent;
 
                                     
-                                    if (Num.Y + Indent.Y >= 8 || Num.Y + Indent.Y <= -1 || Num.X + Indent.X >= 8 || Num.X + Indent.X <= -1)
+                                    if (Num.Y + Indent.Y >= cols || Num.Y + Indent.Y <= -1 || Num.X + Indent.X >= rows || Num.X + Indent.X <= -1)
                                     {
                                         if (RunThrough == 0)
                                             Console.WriteLine("Breach of Index for Square: " + Num);
@@ -1165,7 +1175,7 @@ namespace My_2019_AS_Res
 
                                     Looking2 = Looking + Indent;
 
-                                    if (Looking2.Y >= 8 || Looking2.Y <= -1 || Looking2.X >= 8 || Looking2.X <= -1)
+                                    if (Looking2.Y >= cols || Looking2.Y <= -1 || Looking2.X >= rows || Looking2.X <= -1)
                                     {
                                         
                                     }
@@ -1199,7 +1209,7 @@ namespace My_2019_AS_Res
                                     Looking3 = Looking2 + Indent;
                                     Looking4 = Looking3 + Indent;
 
-                                    if (Looking4.Y >= 8 || Looking4.Y <= -1 || Looking4.X >= 8 || Looking4.X <= -1)
+                                    if (Looking4.Y >= cols || Looking4.Y <= -1 || Looking4.X >= rows || Looking4.X <= -1)
                                     {
                                         
                                     }
