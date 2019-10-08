@@ -12,14 +12,15 @@ namespace My_2019_AS_Res
     public class Board
     {
         public int row, col, BSW, BSH;
-        public Square[,] grid = new Square[20, 20];
+        public Square[,] grid = new Square[1000, 1000];
 
         public void Init(int rows, int cols, int BlackSquareWidth, int BlackSquareHeight)
         {
             Color tempcolour = Color.White;
-            
+            grid = new Square[rows, cols];
             BSH = BlackSquareHeight;
             BSW = BlackSquareWidth;
+           
 
             for (int ycor = 0; ycor < cols; ycor++)
             {
