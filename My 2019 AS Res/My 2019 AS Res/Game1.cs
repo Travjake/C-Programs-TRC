@@ -67,6 +67,7 @@ namespace My_2019_AS_Res
         bool NetworkedGame = false;
         bool PlayNetWorked = false;
         bool SetServer = true;
+        bool JustConnected = false;
         //SaveGame
 
         //string
@@ -216,6 +217,8 @@ namespace My_2019_AS_Res
             pixel = new Texture2D(GraphicsDevice, 1, 1, false, SurfaceFormat.Color);
             pixel.SetData(new[] { Color.Black }); // so that we can draw whatever color we want on top of it 
 
+            
+
             if (state == GameState.Playing)
             {
                 Grid.Init(rows, cols, BlackSquareWidth, BlackSquareHeight);//Runs grid method and draws grid
@@ -299,7 +302,15 @@ namespace My_2019_AS_Res
                     KeyboardState keys = Keyboard.GetState();
                     bool change = true;
                     
-                    
+                    if (JustConnected == true)
+                    {
+                        BlackSquareHeight = (Height - (Height / 10)) / cols;
+                        BlackSquareWidth = (Width - (Width / 6)) / rows;
+                        JustConnected = false;
+                        state = GameState.Playing;
+                        LoadContent();
+
+                    }
 
                     if (!Halt.Enabled)
                     {
@@ -324,11 +335,11 @@ namespace My_2019_AS_Res
                                 {
                                     currentscreen = settings;
                                 }
-                                else if(test == "Credits")
+                                else if (test == "Credits")
                                 {
                                     currentscreen = credits;
                                 }
-                                else if (test == "Join Multiplayer" && Overload == false && rows == 8 && cols == 8 && BlackCounterRows == 2 && WhiteCounterRows == 2)
+                                else if (test == "Join Multiplayer" && Overload == false) // && rows == 8 && cols == 8 && BlackCounterRows == 2 && WhiteCounterRows == 2)
                                 {
                                     state = GameState.Playing;
                                     PlayNetWorked = true;
@@ -345,7 +356,7 @@ namespace My_2019_AS_Res
 
 
                                 }
-                                else if (test == "Host Multiplayer" && Overload == false && rows == 8 && cols == 8 && BlackCounterRows == 2 && WhiteCounterRows == 2)
+                                else if (test == "Host Multiplayer" && Overload == false)// && rows == 8 && cols == 8 && BlackCounterRows == 2 && WhiteCounterRows == 2)
                                 {
                                     state = GameState.Playing;
                                     PlayNetWorked = true;
@@ -438,7 +449,7 @@ namespace My_2019_AS_Res
                     }
                     //LiteNetLib//////////////////////////////////////////////////////////////////////////////////////////////////////
 
-                    if (PlayNetWorked == true && SetServer == true && rows == 8 && cols == 8 && BlackCounterRows == 2 && WhiteCounterRows == 2)
+                    if (PlayNetWorked == true && SetServer == true)// && rows == 8 && cols == 8 && BlackCounterRows == 2 && WhiteCounterRows == 2)
                     {
                         if (!server && !client)
                         {
@@ -492,14 +503,17 @@ namespace My_2019_AS_Res
                         }
                     }
 
-                    if (SetServer == false && PlayNetWorked == true && rows == 8 && cols == 8 && BlackCounterRows == 2 && WhiteCounterRows == 2)
+                    if (SetServer == false && PlayNetWorked == true)// && rows == 8 && cols == 8 && BlackCounterRows == 2 && WhiteCounterRows == 2)
                     {
                         if (!server && !client)
                         {
                             IClient = true;
                             NetworkedGame = true;
                             turn = false;
+
                             
+                             JustConnected = true;
+
 
                             client = true;
                             Console.WriteLine("Client!!!");
@@ -525,7 +539,20 @@ namespace My_2019_AS_Res
                                     SelectedCounter.Y = (float)Convert.ToInt32(values[1]);
                                     SelectedX = Convert.ToInt32(values[2]);
                                     SelectedY = Convert.ToInt32(values[3]);
-                                    
+
+                                    if (JustConnected == true)
+                                    {
+                                        cols = Convert.ToInt32(values[4]);
+                                        rows = Convert.ToInt32(values[4]);
+                                        BlackCounterRows = Convert.ToInt32(values[5]);
+                                        WhiteCounterRows = Convert.ToInt32(values[6]);
+                                        
+                                        state = GameState.MainMenu;
+                                        LoadContent();
+
+                                        
+                                    }
+
                                     ServerMove = true;
 
                                 }
@@ -1574,7 +1601,7 @@ namespace My_2019_AS_Res
             //S.SelectedY = SelectedY;
             
 
-            string test = SelectedCounter2.X + "~" + SelectedCounter2.Y + "~" + SelectedX + "~" + SelectedY + "~" + turn;
+            string test = SelectedCounter2.X + "~" + SelectedCounter2.Y + "~" + SelectedX + "~" + SelectedY + "~" + cols + "~" + BlackCounterRows + "~" + WhiteCounterRows;
 
             
 
