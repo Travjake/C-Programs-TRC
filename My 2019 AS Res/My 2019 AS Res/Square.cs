@@ -56,6 +56,8 @@ namespace My_2019_AS_Res
         public bool active = false;
         public bool PossibleMoveW = false;
         public bool PossibleMoveB = false;
+        public bool HighestBlackScore = false;
+        public int SquareScoreBlack = 0;
         public int X, Y, Offset;
         public Color SquareColour;
         public Texture2D counter;

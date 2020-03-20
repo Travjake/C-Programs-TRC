@@ -38,6 +38,7 @@ namespace My_2019_AS_Res
         public Texture2D LeftBorder;
         public Texture2D RightBorder;
         public Texture2D CoverSquare;
+        public Texture2D MenuPicture;
 
         Texture2D Marker, Marker2;
         Texture2D WH, WL, BH, BL, CS, WWC, BWC;
@@ -85,6 +86,7 @@ namespace My_2019_AS_Res
         KeyboardState current = Keyboard.GetState();
         //Need ints
         int SelectedX = 0;
+        int Room = 1;
         int SelectedY = 0;
         int WhiteTaken = 0;
         int BlackTaken = 0;
@@ -94,8 +96,8 @@ namespace My_2019_AS_Res
         int BlackSquareHeight;
         int BlackSquareWidth;
         Board Grid = new Board();
-        int Height = 700;
-        int Width = 800;
+        int Height = (GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height / 8 ) * 6;
+        int Width = (GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width / 8 ) * 6;
         int BlackCounterRows = 2;
         int WhiteCounterRows = 2;
         int Connecting = 0;
@@ -143,8 +145,8 @@ namespace My_2019_AS_Res
             IsMouseVisible = true;
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
-            graphics.PreferredBackBufferHeight = Height;//Set screen Height
-            graphics.PreferredBackBufferWidth = Width;//Set screen width
+            graphics.PreferredBackBufferHeight = (GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height  / 8 ) * 6;//Set screen Height
+            graphics.PreferredBackBufferWidth = (GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width / 8 ) * 6;//Set screen width
             graphics.ApplyChanges();
         }
 
@@ -195,7 +197,7 @@ namespace My_2019_AS_Res
             OfflineMarker = Content.Load<Texture2D>("Offline");
             ConnectingMarker = Content.Load<Texture2D>("Connecting");
             OnlineMarker = Content.Load<Texture2D>("Online");
-
+            MenuPicture = Content.Load<Texture2D>("Menu Background");
             SetBackground();
 
 
@@ -204,25 +206,29 @@ namespace My_2019_AS_Res
             small = Content.Load<SpriteFont>("Regular");
 
             // Set menus and screens
-            menu = new SimpleTextUI(this, big, new[] { "Play Single Player", "Play Two Player", "Host Multiplayer", "Join Multiplayer", "Settings", "Credits", "Exit" })
+            menu = new SimpleTextUI(this, MenuPicture, big, new[] { "Play Single Player", "Play Two Player", "Host Multiplayer", "Join Multiplayer", "Settings", "Exit" })
             {
                 TextColor = Color.Black,
                 SelectedElement = new TextElement("> ", Color.LightGray),
                 Align = Alignment.Left
             };
 
-            settings = new SimpleTextUI(this, big, new TextElement[]
+            settings = new SimpleTextUI(this, MenuPicture, big, new TextElement[]
             {
                 //new SelectElement("Video", new[]{"Windowed","FullScreen"}),
                 //new NumericElement("Music",1,3,0f,10f,1f),
-                new SelectElement("Single\n Player Difficulty", new[]{"Easy", "Medium", "Hard"}),
+                //new SelectElement("Difficulty\n", new[]{"Easy", "Medium", "Hard"}),
                 new NumericElement("Rows \n  & Cols\n",rows,3,0f,50f,2f),
                 new NumericElement("Black\n  Rows\n",BlackCounterRows,3,0f,24f,1f),
                 new NumericElement("White\n  Rows\n",WhiteCounterRows,3,0f,24f,1f),
+                new SelectElement("Show\n Possible White Moves\n", new[]{"False", "True"}),
+                new SelectElement("Show\n Possible Black Moves\n", new[]{"False", "True"}),
+                new NumericElement("Game\n Room:\n",Room,3,0f,99f,1f),
+                new TextElement("Reset Setting to Default"),
                 new TextElement("Back")
             });
 
-            credits = new SimpleTextUI(this, big, new TextElement[]
+            credits = new SimpleTextUI(this,MenuPicture, big, new TextElement[]
             {
                 new TextElement("Travis Chapple"),
                 new TextElement("   www."),
@@ -351,10 +357,10 @@ namespace My_2019_AS_Res
                                 {
                                     currentscreen = settings;
                                 }
-                                else if (test == "Credits")
-                                {
-                                    currentscreen = credits;
-                                }
+                                //else if (test == "Credits")
+                                //{
+                                    //currentscreen = credits;
+                                //}
                                 else if (test == "Join Multiplayer" && Overload == false) // && rows == 8 && cols == 8 && BlackCounterRows == 2 && WhiteCounterRows == 2)
                                 {
                                     state = GameState.Playing;
@@ -398,6 +404,18 @@ namespace My_2019_AS_Res
                                     if (cols < WhiteCounterRows + BlackCounterRows)
                                         Overload = true;
                                 }
+                                if (test ==  "Reset Setting to Default")
+                                {
+                                    cols = 8;
+                                    rows = 8;
+                                    BlackCounterRows = 2;
+                                    WhiteCounterRows = 2;
+                                    SinglePlayerDifficulty = 0;
+
+                                    currentscreen = menu;
+                                    LoadContent();
+                                    currentscreen = settings;
+                                }
                             }
                         }
                         else if (keys.IsKeyDown(Keys.Left))
@@ -408,7 +426,7 @@ namespace My_2019_AS_Res
                                 graphics.IsFullScreen = (currentscreen.GetCurrentValue() == "FullScreen");
                                 graphics.ApplyChanges();
                             }
-                            if (currentscreen.GetCurrentCaption() == "Single\n Player Difficulty")
+                            if (currentscreen.GetCurrentCaption() == "Difficulty\n")
                             {
                                 SinglePlayerDifficulty--;
                             }
@@ -422,9 +440,21 @@ namespace My_2019_AS_Res
                                 BlackCounterRows--;
 
                             }
-                            if (currentscreen.GetCurrentCaption() == "White\n  Rows\n          * Black Rows + White Rows must be less than Rows & Cols.\n")
+                            if (currentscreen.GetCurrentCaption() == "White\n  Rows\n")
                             {
                                 WhiteCounterRows--;
+                            }
+                            if (currentscreen.GetCurrentCaption() == "Show\n Possible Black Moves\n")
+                            {
+                                ShowPossibleB = false;
+                            }
+                            if (currentscreen.GetCurrentCaption() == "Show\n Possible White Moves\n")
+                            {
+                                ShowPossibleW = false;
+                            }
+                            if (currentscreen.GetCurrentCaption() == "Game\n Room:\n" && Room != 0)
+                            {
+                                Room--;
                             }
                         }
 
@@ -436,7 +466,7 @@ namespace My_2019_AS_Res
                                 graphics.IsFullScreen = (currentscreen.GetCurrentValue() == "FullScreen");
                                 graphics.ApplyChanges();
                             }
-                            if (currentscreen.GetCurrentCaption() == "Single\n Player Difficulty")
+                            if (currentscreen.GetCurrentCaption() == "Difficulty\n")
                             {
                                 SinglePlayerDifficulty++;
                             }
@@ -450,9 +480,21 @@ namespace My_2019_AS_Res
                             {
                                 BlackCounterRows++;
                             }
-                            if (currentscreen.GetCurrentCaption() == "White\n  Rows\n          * Black Rows + White Rows must be less than Rows & Cols.\n")
+                            if (currentscreen.GetCurrentCaption() == "White\n  Rows\n")
                             {
                                 WhiteCounterRows++;
+                            }
+                            if (currentscreen.GetCurrentCaption() == "Show\n Possible Black Moves\n")
+                            {
+                                ShowPossibleB = true;
+                            }
+                            if (currentscreen.GetCurrentCaption() == "Show\n Possible White Moves\n")
+                            {
+                                ShowPossibleW = true;
+                            }
+                            if (currentscreen.GetCurrentCaption() == "Game\n Room:\n" && Room != 99)
+                            {
+                                Room++;
                             }
                         }
                         else
@@ -507,7 +549,7 @@ namespace My_2019_AS_Res
                             listener.ConnectionRequestEvent += request =>
                             {
                                 if (Server.PeersCount < 2 /* max connections */)
-                                    request.AcceptIfKey("SomeConnectionKey");
+                                    request.AcceptIfKey(Convert.ToString(Room));
                                 else
                                     request.Reject();
                             };
@@ -561,7 +603,7 @@ namespace My_2019_AS_Res
                             Client = new NetManager(listener);
 
                             Client.Start();
-                            Client.Connect("localhost" /* host ip or name */, 9050 /* port */, "SomeConnectionKey" /* text key or NetDataWriter */);
+                            Client.Connect("localhost" /* host ip or name */, 9050 /* port */, Convert.ToString(Room) /* text key or NetDataWriter */);
 
                             listener.NetworkReceiveEvent += (fromPeer, dataReader, deliveryMethod) =>
                             {
@@ -585,6 +627,8 @@ namespace My_2019_AS_Res
                                         rows = Convert.ToInt32(values[4]);
                                         BlackCounterRows = Convert.ToInt32(values[5]);
                                         WhiteCounterRows = Convert.ToInt32(values[6]);
+                                        ShowPossibleB = Convert.ToBoolean(values[7]);
+                                        ShowPossibleW = Convert.ToBoolean(values[8]);
 
                                         state = GameState.MainMenu;
                                         LoadContent();
@@ -704,7 +748,7 @@ namespace My_2019_AS_Res
                                     SelectedCounter = new Vector2(SelectedX, SelectedY);
                                 }
                             }
-                            else if ((SelectedCounter != new Vector2(-1, -1) && Grid.grid[SelectedX, SelectedY].SquareColour == Color.White)) // Below else if contains all possible movements are required criteria
+                            else if ((Grid.grid[SelectedX, SelectedY].SquareColour == Color.White)) // Below else if contains all possible movements are required criteria
                             {
                                 //White Movements
                                 if ((Grid.grid[(int)SelectedCounter.X, (int)SelectedCounter.Y].counter == WL) && turn == false)
@@ -1199,7 +1243,7 @@ namespace My_2019_AS_Res
                             {
                                 SinglePlayerMoves();
 
-                                turn = !turn;
+                                
                             }
 
 
@@ -1379,7 +1423,7 @@ namespace My_2019_AS_Res
 
                     ////////////////////////////////SpriteFonts
 
-                    spriteBatch.DrawString(Label, "Possible White Moves: " + PW + " || Possible Black Moves: " + PB + " || Turn: " + WhosTurn, new Vector2(10, Height - 40), Color.Black); // HUD at the bottom of the screen
+                    spriteBatch.DrawString(Label, "Possible Moves:  White: " + PW + "  Black: " + PB + "  ||  Counters Lost:  White: " + WhiteTaken + "  Black: " + BlackTaken + "  ||  Turn: " + WhosTurn, new Vector2(10, Height - 40), Color.Black); // HUD at the bottom of the screen
 
                     if (BlackWin == true)
                     {
@@ -1412,15 +1456,15 @@ namespace My_2019_AS_Res
                     spriteBatch.Draw(CS, new Vector2((float)(SelectedCounter.X * BlackSquareWidth + ((BlackSquareWidth - 70 * IncScale2) / 2)), (float)(SelectedCounter.Y * BlackSquareHeight + ((BlackSquareHeight - 70 * IncScale2) / 2))), null, Color.White, 0f, Vector2.Zero, (float)IncScale2, SpriteEffects.None, 0f);
                     if (Connecting == 0)
                     {
-                        spriteBatch.Draw(OfflineMarker, new Vector2(770, 5), Color.Red);
+                        spriteBatch.Draw(OfflineMarker, new Vector2(Width - OfflineMarker.Width, 0), Color.Red);
                     }
                     if (Connecting == 1)
                     {
-                        spriteBatch.Draw(ConnectingMarker, new Vector2(770, 5), null);
+                        spriteBatch.Draw(ConnectingMarker, new Vector2(Width - OfflineMarker.Width, 0), null);
                     }
                     if (Connecting == 2)
                     {
-                        spriteBatch.Draw(OnlineMarker, new Vector2(770, 5));
+                        spriteBatch.Draw(OnlineMarker, new Vector2(Width - OfflineMarker.Width, 0),null);
                     }
                     spriteBatch.End();
                     break;
@@ -1437,659 +1481,369 @@ namespace My_2019_AS_Res
 
         public void SinglePlayerMoves()
         {
-            AIMoved = false;
-            int PossibleCountersTaken;
-            int RunThrough = 0;
-            int BestMove = 0;
-            int LastSavedValue = -1;
-            bool HigherCounter = false;
-            bool ThreeJump = false;
-            Vector2 Indent = new Vector2(1, 1);
-            Vector2 Indent2 = new Vector2(0, 0);
-            Vector2 Indent3 = new Vector2(0, 0);
-            Vector2 Add = new Vector2(1, 1);
-            List<Move> BestMoveCor = new List<Move>();
+            int HighestCurrentMove = 0;
+            bool SinglePlayerMoved = false;
+            Vector2 HighestMoveLand = new Vector2 (-1,-1);
+            Vector2 Offset = new Vector2(1, 1);
+            Vector2 Remove = new Vector2(-1, -1);
+            Vector2 Remove2 = new Vector2(-1, -1);
 
-            Random RNumX = new Random();
+            
 
-
-            if (SinglePlayerDifficulty == 0 || SinglePlayerDifficulty == 1)
-            {
-                Moved = false;
-                int SNumX = 0;
-                int SNumY = 0;
-                int Jump = 0;
-                
-
-                while (Moved == false)
-                {
-                    Jump = Convert.ToInt32(RNumX.Next(1, 2));
-                    Console.WriteLine(Jump);
-                    //if (SinglePlayerDifficulty == 1)
-                        Jump = 2;
-                    SNumX = Convert.ToInt32(RNumX.Next(0, rows));
-                    SNumY = Convert.ToInt32(RNumX.Next(0, rows));
-                    Console.WriteLine(SNumX + "," + SNumY);
-                    
-                    int XCord = 0;
-                    int YCord = 0;
-
-                    ///Jumps for Single Player ////////////////////////////
-                    if ((Grid.grid[SNumX, SNumY].counter == BL || Grid.grid[SNumX, SNumY].counter == BH) && Grid.grid[SNumX, SNumY].active == true && Jump == 2)
-                    {
-                        Console.WriteLine("1");
-                        if (Grid.grid[SNumX, SNumY].counter == BL)
-                        {
-                            Console.WriteLine("2");
-                            if (SNumX + 2 <= cols - 1 && SNumX - 2 >= 0 && SNumY - 2 >= 0)
-                            {
-                                if ((Grid.grid[SNumX - 2, SNumY - 2].active == false &&  (Grid.grid[SNumX - 1, SNumY - 1].counter == WL || Grid.grid[SNumX - 1, SNumY - 1].counter == WH)) && (Grid.grid[SNumX + 2, SNumY - 2].active == false && (Grid.grid[SNumX + 1, SNumY - 1].counter == WL || Grid.grid[SNumX + 1, SNumY - 1].counter == WH)))
-                                {
-                                    Console.WriteLine("3");
-                                    int Choice = Convert.ToInt32(RNumX.Next(1, 2));
-                                    if (Convert.ToInt32(Choice) == 1)
-                                    {
-                                        Grid.grid[SNumX, SNumY].active = false;
-                                        Grid.grid[SNumX + 2, SNumY - 2].counter = Grid.grid[SNumX, SNumY].counter;
-                                        Grid.grid[SNumX, SNumY].counter = null;
-                                        Grid.grid[SNumX + 2, SNumY - 2].active = true;
-                                        Grid.grid[SNumX + 1, SNumY - 1].counter = null;
-                                        Grid.grid[SNumX + 1, SNumY - 1].active = false;
-                                        Moved = true;
-                                        BlackTaken++;
-                                    }
-                                    if (Convert.ToInt32(Choice) == 2)
-                                    {
-                                        Grid.grid[SNumX, SNumY].active = false;
-                                        Grid.grid[SNumX - 2, SNumY - 2].counter = Grid.grid[SNumX, SNumY].counter;
-                                        Grid.grid[SNumX, SNumY].counter = null;
-                                        Grid.grid[SNumX - 2, SNumY - 2].active = true;
-                                        Grid.grid[SNumX - 1, SNumY - 1].counter = null;
-                                        Grid.grid[SNumX - 1, SNumY - 1].active = false;
-                                        Moved = true;
-                                        BlackTaken++;
-                                    }
-                                    Moved = true;
-                                }
-                            }
-                            Console.WriteLine("2a");
-                            if (SNumX + 2 <= cols -1 && SNumY - 2 >= 0)
-                            {
-                                if (Grid.grid[SNumX + 2, SNumY - 2].active == false && Moved == false && (Grid.grid[SNumX + 1, SNumY - 1].counter == WL || Grid.grid[SNumX + 1, SNumY - 1].counter == WH))
-                                {
-                                    Grid.grid[SNumX, SNumY].active = false;
-                                    Grid.grid[SNumX + 2, SNumY - 2].counter = Grid.grid[SNumX, SNumY].counter;
-                                    Grid.grid[SNumX, SNumY].counter = null;
-                                    Grid.grid[SNumX + 2, SNumY - 2].active = true;
-                                    Grid.grid[SNumX + 1, SNumY - 1].counter = null;
-                                    Grid.grid[SNumX + 1, SNumY - 1].active = false;
-                                    Moved = true;
-                                    BlackTaken++;
-                                }
-                            }
-                            Console.WriteLine("2b");
-                            if (SNumX - 2 >= 0 && SNumY - 2 >= 0)
-                            {
-                                if (Grid.grid[SNumX - 2, SNumY - 2].active == false && Moved == false && (Grid.grid[SNumX - 1, SNumY - 1].counter == WL || Grid.grid[SNumX - 1, SNumY - 1].counter == WH))
-                                {
-                                    Grid.grid[SNumX, SNumY].active = false;
-                                    Grid.grid[SNumX - 2, SNumY - 2].counter = Grid.grid[SNumX, SNumY].counter;
-                                    Grid.grid[SNumX, SNumY].counter = null;
-                                    Grid.grid[SNumX - 2, SNumY - 2].active = true;
-                                    Grid.grid[SNumX - 1, SNumY - 1].counter = null;
-                                    Grid.grid[SNumX - 1, SNumY - 1].active = false;
-                                    Moved = true;
-                                    BlackTaken++;
-                                }
-                            }
-                        }
-
-                        if (Grid.grid[SNumX, SNumY].counter == BH)
-                        {
-                            int Options = 0;
-                            if (SNumX + 2 <= cols - 1 && SNumY - 2 >= 0)
-                            {
-                                if ((Grid.grid[SNumX + 1, SNumY - 1].counter == WL || Grid.grid[SNumX + 1, SNumY - 1].counter == WH) && Grid.grid[SNumX + 2, SNumY - 2].PossibleMoveB == true)
-                                    Options++;
-                            }
-                            if (SNumX - 2 >= 0 && SNumY + 2 <= rows - 1)
-                            {
-                                if ((Grid.grid[SNumX - 1, SNumY + 1].counter == WL || Grid.grid[SNumX - 1, SNumY + 1].counter == WH) && Grid.grid[SNumX - 2, SNumY + 2].PossibleMoveB == true)
-                                    Options++;
-                            }
-                            if (SNumX - 2 >= 0 && SNumY - 2 >= 0)
-                            {
-                                if ((Grid.grid[SNumX - 1, SNumY - 1].counter == WL || Grid.grid[SNumX - 1, SNumY - 1].counter == WH) && Grid.grid[SNumX - 2, SNumY - 2].PossibleMoveB == true)
-                                    Options++;
-                            }
-                            if (SNumX + 2 <= cols - 1 && SNumY + 2 <= rows - 1)
-                            {
-                                if ((Grid.grid[SNumX + 1, SNumY + 1].counter == WL || Grid.grid[SNumX + 1, SNumY + 1].counter == WH) && Grid.grid[SNumX + 2, SNumY + 2].PossibleMoveB == true)
-                                    Options++;
-                            }
-
-                            if (Options == 4)
-                            {
-                                int Choice2 = Convert.ToInt32(RNumX.Next(1, 4));
-
-                                if (Convert.ToInt32(Choice2) == 4)
-                                {
-                                    XCord = 2;
-                                    YCord = 2;
-                                }
-                                if (Convert.ToInt32(Choice2) == 3)
-                                {
-                                    XCord = -2;
-                                    YCord = -2;
-                                }
-                                if (Convert.ToInt32(Choice2) == 2)
-                                {
-                                    XCord = -2;
-                                    YCord = 2;
-                                }
-                                if (Convert.ToInt32(Choice2) == 1)
-                                {
-                                    XCord = 2;
-                                    YCord = -2;
-                                }
-
-                                
-                                    Grid.grid[SNumX + XCord, SNumY + YCord].active = true;
-                                    Grid.grid[SNumX + XCord, SNumY + YCord].counter = Grid.grid[SNumX, SNumY].counter;
-                                    Grid.grid[SNumX, SNumY].counter = null;
-                                    Grid.grid[SNumX, SNumY].active = false;
-                                    Grid.grid[SNumX + XCord / 2, SNumY + YCord / 2].active = false;
-                                    Grid.grid[SNumX + XCord / 2, SNumY + YCord / 2].counter = null;
-                                    Moved = true;
-                                BlackTaken++;
-                            }
-
-
-                            if (Options < 4)
-                            {
-                                bool PossibleMove = false;
-                                while (PossibleMove == false)
-                                {
-                                    int Choice3 = Convert.ToInt32(RNumX.Next(1, 4));
-
-                                    if (Convert.ToInt32(Choice3) == 4)
-                                    {
-                                        XCord = 2;
-                                        YCord = 2;
-                                    }
-                                    if (Convert.ToInt32(Choice3) == 3)
-                                    {
-                                        XCord = -2;
-                                        YCord = -2;
-                                    }
-                                    if (Convert.ToInt32(Choice3) == 2)
-                                    {
-                                        XCord = -2;
-                                        YCord = 2;
-                                    }
-                                    if (Convert.ToInt32(Choice3) == 1)
-                                    {
-                                        XCord = 2;
-                                        YCord = -2;
-                                    }
-
-                                    if (SNumX + XCord >= 0 && SNumX + XCord <= cols - 1 && SNumY + YCord <= cols - 1 && SNumY + YCord >= 0)
-                                    {
-                                        
-                                            Grid.grid[SNumX + XCord, SNumY + YCord].active = true;
-                                            Grid.grid[SNumX + XCord, SNumY + YCord].counter = Grid.grid[SNumX, SNumY].counter;
-                                            Grid.grid[SNumX, SNumY].counter = null;
-                                            Grid.grid[SNumX, SNumY].active = false;
-                                            Grid.grid[SNumX + XCord / 2, SNumY + YCord / 2].active = false;
-                                            Grid.grid[SNumX + XCord / 2, SNumY + YCord / 2].counter = null;
-                                            PossibleMove = true;
-                                            Moved = true;
-                                        
-                                    }
-                                    BlackTaken++;
-                                }
-                            }
-                        }
-
-                    }
-                
-                    ///Single moves for single player////////////////////////////
-                    if ((Grid.grid[SNumX, SNumY].counter == BL || Grid.grid[SNumX, SNumY].counter == BH) && Grid.grid[SNumX, SNumY].active == true)
-                    {
-                        Console.WriteLine("1");
-                        if (Grid.grid[SNumX, SNumY].counter == BL)
-                        {
-                            Console.WriteLine("2");
-                            if (SNumX < cols - 1 && SNumX > 0 && SNumY != 0)
-                            {
-                                if (Grid.grid[SNumX + 1, SNumY - 1].active == false && Grid.grid[SNumX - 1, SNumY - 1].active == false && Moved == false)
-                                {
-                                    Console.WriteLine("3");
-                                    int Choice = Convert.ToInt32(RNumX.Next(1, 2));
-                                    if (Convert.ToInt32(Choice) == 1)
-                                    {
-                                        Grid.grid[SNumX, SNumY].active = false;
-                                        Grid.grid[SNumX, SNumY].counter = null;
-                                        Grid.grid[SNumX + 1, SNumY - 1].active = true;
-                                        Grid.grid[SNumX + 1, SNumY - 1].counter = BL;
-                                        Moved = true;
-                                    }
-                                    if (Convert.ToInt32(Choice) == 2)
-                                    {
-                                        Grid.grid[SNumX, SNumY].active = false;
-                                        Grid.grid[SNumX, SNumY].counter = null;
-                                        Grid.grid[SNumX - 1, SNumY - 1].active = true;
-                                        Grid.grid[SNumX - 1, SNumY - 1].counter = BL;
-                                        Moved = true;
-                                    }
-                                    Moved = true;
-                                }
-                            }
-                            Console.WriteLine("2a");
-                            if (SNumX < cols - 1 && SNumY != 0)
-                            {
-                                if (Grid.grid[SNumX + 1, SNumY - 1].active == false && Moved == false)
-                                {
-                                    Console.WriteLine("4");
-                                    Grid.grid[SNumX, SNumY].active = false;
-                                    Grid.grid[SNumX, SNumY].counter = null;
-                                    Grid.grid[SNumX + 1, SNumY - 1].active = true;
-                                    Grid.grid[SNumX + 1, SNumY - 1].counter = BL;
-                                    Moved = true;
-                                }
-                            }
-                            Console.WriteLine("2b");
-                            if (SNumX > 0 && SNumY != 0)
-                            {
-                                if (Grid.grid[SNumX - 1, SNumY - 1].active == false && Moved == false)
-                                {
-                                    Console.WriteLine("5");
-                                    Grid.grid[SNumX, SNumY].active = false;
-                                    Grid.grid[SNumX, SNumY].counter = null;
-                                    Grid.grid[SNumX - 1, SNumY - 1].active = true;
-                                    Grid.grid[SNumX - 1, SNumY - 1].counter = BL;
-                                    Moved = true;
-                                }
-                            }
-                        }
-                        
-                        if (Grid.grid[SNumX, SNumY].counter == BH)
-                        {
-                            int Options = 0;
-                            if (SNumX < cols - 1 && SNumY > 0)
-                            {
-                                if (Grid.grid[SNumX + 1, SNumY - 1].active == false)
-                                    Options++;
-                            }
-                            if (SNumX > 0 && SNumY < rows - 1)
-                            {
-                                if (Grid.grid[SNumX - 1, SNumY + 1].active == false)
-                                    Options++;
-                            }
-                            if (SNumX > 0 && SNumY > 0)
-                            {
-                                if (Grid.grid[SNumX - 1, SNumY - 1].active == false)
-                                    Options++;
-                            }
-                            if (SNumX < cols - 1 && SNumY < rows - 1)
-                            {
-                                if (Grid.grid[SNumX + 1, SNumY + 1].active == false)
-                                    Options++;
-                            }
-
-                            if (Options == 4)
-                            {
-                                int Choice2 = Convert.ToInt32(RNumX.Next(1, 4));
-
-                                if (Convert.ToInt32(Choice2) == 4)
-                                {
-                                    XCord = 1;
-                                    YCord = 1;
-                                }
-                                if (Convert.ToInt32(Choice2) == 3)
-                                {
-                                    XCord = -1;
-                                    YCord = -1;
-                                }
-                                if (Convert.ToInt32(Choice2) == 2)
-                                {
-                                    XCord = -1;
-                                    YCord = 1;
-                                }
-                                if (Convert.ToInt32(Choice2) == 1)
-                                {
-                                    XCord = 1;
-                                    YCord = -1;
-                                }
-
-                                Grid.grid[SNumX + XCord, SNumY + YCord].active = true;
-                                Grid.grid[SNumX + XCord, SNumY + YCord].counter = Grid.grid[SNumX, SNumY].counter;
-                                Grid.grid[SNumX, SNumY].counter = null;
-                                Grid.grid[SNumX, SNumY].active = false;
-                                Moved = true;
-                            }
-
-
-                            if (Options < 4)
-                            {
-                                bool PossibleMove = false;
-                                while (PossibleMove == false)
-                                {
-                                    int Choice3 = Convert.ToInt32(RNumX.Next(1, 4));
-
-                                    if (Convert.ToInt32(Choice3) == 4)
-                                    {
-                                        XCord = 1;
-                                        YCord = 1;
-                                    }
-                                    if (Convert.ToInt32(Choice3) == 3)
-                                    {
-                                        XCord = -1;
-                                        YCord = -1;
-                                    }
-                                    if (Convert.ToInt32(Choice3) == 2)
-                                    {
-                                        XCord = -1;
-                                        YCord = 1;
-                                    }
-                                    if (Convert.ToInt32(Choice3) == 1)
-                                    {
-                                        XCord = 1;
-                                        YCord = -1;
-                                    }
-
-                                    if (Grid.grid[SNumX + XCord, SNumY + YCord].active == false)
-                                    {
-                                        Grid.grid[SNumX + XCord, SNumY + YCord].active = true;
-                                        Grid.grid[SNumX + XCord, SNumY + YCord].counter = Grid.grid[SNumX, SNumY].counter;
-                                        Grid.grid[SNumX, SNumY].counter = null;
-                                        Grid.grid[SNumX, SNumY].active = false;
-                                        PossibleMove = true;
-                                        Moved = true;
-                                    }
-
-                                }
-                            }
-                        }
-                        
-                    }
-                }
-                for (int HC = 0; HC < rows; HC++)
-                {
-                    if (Grid.grid[HC, 0].counter == BL                                                                      )
-                        Grid.grid[HC, 0].counter = BH;
-                }
-                Winner();
-            }
-        
-        
-        
-
-            /*for (int w = 0; w < cols; w++)
-            {
-                for (int v = 0; v < rows; v++)
-                {
-                    if (Grid.grid[v, w].counter == BH)
-                        HigherCounter = true;
-
-                    if (Grid.grid[v, w].counter == BL || Grid.grid[v, w].counter == BH)
-                    {
-                        Indent = new Vector2(0, 0);
-                        Indent2 = new Vector2(0, 0);
-                        RunThrough = 0;
-
-                        while (RunThrough != 3) 
-                        {
-                            try
-                            {
-                                
-                                if ((HigherCounter == false && Indent.Y < 0) || HigherCounter == true)
-                                {
-                                    if (Grid.grid[v + (int)Indent.X, w + (int)Indent.Y].PossibleMoveB == true && (Indent.X == 1 || Indent.X == -1))
-                                    {
-                                        BestMove = 1;
-                                    }
-                                    Indent = Indent + Add;
-                                    if (Grid.grid[v + (int)Indent.X, w + (int)Indent.Y].PossibleMoveB == true && (Indent.X == 2 || Indent.X == -2))
-                                    {
-                                        BestMove = 2;
-                                    }
-                                    Indent2 = Indent + Indent;
-                                    if (Grid.grid[v + (int)Indent.X, w + (int)Indent.Y].PossibleMoveB == true && Grid.grid[v + (int)Indent2.X, w + (int)Indent2.Y].PossibleMoveB == true && (Indent.X == 2 || Indent.X == -2) && (Indent2.X == 4 | Indent2.X == -4))
-                                    {
-                                        BestMove = 3;
-                                    }
-
-                                    if (BestMove > 0)
-                                    {
-                                        Move temp = new Move();
-                                        temp.Positon.X = v;
-                                        temp.Positon.Y = w;
-                                        temp.MoveValue = BestMove;
-
-                                        BestMoveCor.Add(temp);
-                                        Console.WriteLine("BestCorItems"+BestMoveCor.Count);
-                                        Indent3 = Indent;
-                                        if (Indent2.X != 0)
-                                            ThreeJump = true;
-                                    }
-
-                                    
-                                }
-                                if (RunThrough == 0)
-                                    Indent.Y = Indent.Y * -1;
-                                if (RunThrough == 1)
-                                    Indent.X = Indent.X * -1;
-                                if (RunThrough == 2)
-                                    Indent.Y = Indent.Y = -1;
-                                RunThrough++;
-
-                            }
-                            catch { }
-                        }
-                    }
-                    
-                }
-            }*/
-
-           
-            /*
-            for (int y = 0; y < cols; y++)
+            for (int y = 0; y < rows; y++)
             {
                 for (int x = 0; x < rows; x++)
                 {
-                    
+                    Grid.grid[x, y].SquareScoreBlack = 0;
+                    int RunThrough = 0;
 
-                    if (Grid.grid[x, y].counter == BL || Grid.grid[x, y].counter == BH)
+                    while (RunThrough <= 3)
                     {
-                        try
+
+                       
+
+                        if ((Grid.grid[x, y].counter == BL || Grid.grid[x, y].counter == BH ) && (int)Offset.Y == -1)
                         {
-                            if (Grid.grid[x - 4, y - 4].PossibleMoveB == true && turn == true)
+                            if (x + Offset.X * 2 <= rows && x + Offset.X * 2 >= 0 && y + Offset.Y * 2 >= 0 && y + Offset.Y * 2 <= rows)
                             {
-                                Grid.grid[x - 4, y - 4].counter = Grid.grid[x, y].counter;
-                                Grid.grid[x - 4, y - 4].active = true;
-                                Grid.grid[x - 3, y - 3].active = false;
-                                Grid.grid[x - 3, y - 3].counter = null;
-                                Grid.grid[x - 1, y - 1].active = false;
-                                Grid.grid[x - 1, y - 1].counter = null;
-                                Grid.grid[x, y].counter = null;
-                                Grid.grid[x, y].active = false;
+                                if ((Grid.grid[x + (int)Offset.X, y + (int)Offset.Y].counter == WL || Grid.grid[x + (int)Offset.X, y + (int)Offset.Y].counter == WH) && Grid.grid[x + (int)Offset.X * 2, y + (int)Offset.Y * 2].active == false)
+                                {
+                                    if (Grid.grid[x + (int)Offset.X, y + (int)Offset.Y].counter == WL)
+                                        Grid.grid[x, y].SquareScoreBlack = 1;
+                                    else if (Grid.grid[x + (int)Offset.X, y + (int)Offset.Y].counter == WH)
+                                        Grid.grid[x, y].SquareScoreBlack = 2;
 
-                                turn = false;
+                                    SinglePlayerMoved = true;
+                                    
+                                }
+
                             }
-                            else if (Grid.grid[x + 4, y - 4].PossibleMoveB == true && turn == true)
+                            if (x + Offset.X * 4 <= rows && x + Offset.X * 4 >= 0 && y + Offset.Y * 4 >= 0 && y + Offset.Y * 4 <= rows)
                             {
-                                Grid.grid[x + 4, y - 4].counter = Grid.grid[x, y].counter;
-                                Grid.grid[x + 4, y - 4].active = true;
-                                Grid.grid[x + 3, y - 3].active = false;
-                                Grid.grid[x + 3, y - 3].counter = null;
-                                Grid.grid[x + 1, y - 1].active = false;
-                                Grid.grid[x + 1, y - 1].counter = null;
-                                Grid.grid[x, y].counter = null;
-                                Grid.grid[x, y].active = false;
+                                if ((Grid.grid[x + (int)Offset.X, y + (int)Offset.Y].counter == WL || Grid.grid[x + (int)Offset.X, y + (int)Offset.Y].counter == WH) && Grid.grid[x + (int)Offset.X * 2, y + (int)Offset.Y * 2].active == false && (Grid.grid[x + (int)Offset.X * 3, y + (int)Offset.Y * 3].counter == WL || Grid.grid[x + (int)Offset.X, y + (int)Offset.Y].counter == WH) && Grid.grid[x + (int)Offset.X * 4, y + (int)Offset.Y * 4].active == false)
+                                {
+                                    if ((Grid.grid[x + (int)Offset.X, y + (int)Offset.Y].counter == WL && Grid.grid[x + (int)Offset.X * 3, y + (int)Offset.Y * 3].counter == WH) || (Grid.grid[x + (int)Offset.X, y + (int)Offset.Y].counter == WH && Grid.grid[x + (int)Offset.X * 3, y + (int)Offset.Y * 3].counter == WL) || (Grid.grid[x + (int)Offset.X, y + (int)Offset.Y].counter == WL && Grid.grid[x + (int)Offset.X * 3, y + (int)Offset.Y * 3].counter == WL))
+                                        Grid.grid[x, y].SquareScoreBlack = 3;
+                                    if (Grid.grid[x + (int)Offset.X, y + (int)Offset.Y].counter == WH && Grid.grid[x + (int)Offset.X * 3, y + (int)Offset.Y * 3].counter == WH)
+                                        Grid.grid[x, y].SquareScoreBlack = 4;
 
-                                turn = false;
+                                    SinglePlayerMoved = true;
+                                    
+                                }
+
                             }
-
-
                         }
-                        catch { }
+
 
                         if (Grid.grid[x, y].counter == BH)
                         {
-                            try
+                            if (x + Offset.X * 2 <= rows && x + Offset.X * 2 >= 0 && y + Offset.Y * 2 >= 0 && y + Offset.Y * 2 <= rows)
                             {
-                                if (Grid.grid[x - 4, y + 4].PossibleMoveB == true && turn == true)
+                                if ((Grid.grid[x + (int)Offset.X, y + (int)Offset.Y].counter == WL || Grid.grid[x + (int)Offset.X, y + (int)Offset.Y].counter == WH) && Grid.grid[x + (int)Offset.X * 2, y + (int)Offset.Y * 2].active == false)
                                 {
-                                    Grid.grid[x - 4, y + 4].counter = Grid.grid[x, y].counter;
-                                    Grid.grid[x - 4, y + 4].active = true;
-                                    Grid.grid[x - 3, y + 3].active = false;
-                                    Grid.grid[x - 3, y + 3].counter = null;
-                                    Grid.grid[x - 1, y + 1].active = false;
-                                    Grid.grid[x - 1, y + 1].counter = null;
-                                    Grid.grid[x, y].counter = null;
-                                    Grid.grid[x, y].active = false;
+                                    if (Grid.grid[x + (int)Offset.X, y + (int)Offset.Y].counter == WL)
+                                        Grid.grid[x, y].SquareScoreBlack = 1;
+                                    else if (Grid.grid[x + (int)Offset.X, y + (int)Offset.Y].counter == WH)
+                                        Grid.grid[x, y].SquareScoreBlack = 2;
 
-                                    turn = false;
+                                    SinglePlayerMoved = true;
                                 }
-                                else if (Grid.grid[x + 4, y + 4].PossibleMoveB == true && turn == true)
-                                {
-                                    Grid.grid[x + 4, y + 4].counter = Grid.grid[x, y].counter;
-                                    Grid.grid[x + 4, y + 4].active = true;
-                                    Grid.grid[x + 3, y + 3].active = false;
-                                    Grid.grid[x + 3, y + 3].counter = null;
-                                    Grid.grid[x + 1, y + 1].active = false;
-                                    Grid.grid[x + 1, y + 1].counter = null;
-                                    Grid.grid[x, y].counter = null;
-                                    Grid.grid[x, y].active = false;
 
-                                    turn = false;
-                                }
                             }
-                            catch { }
+                            if (x + Offset.X * 4 <= rows && x + Offset.X * 4 >= 0 && y + Offset.Y * 4 >= 0 && y + Offset.Y * 4 <= rows)
+                            {
+                                if ((Grid.grid[x + (int)Offset.X, y + (int)Offset.Y].counter == WL || Grid.grid[x + (int)Offset.X, y + (int)Offset.Y].counter == WH) && Grid.grid[x + (int)Offset.X * 2, y + (int)Offset.Y * 2].active == false && (Grid.grid[x + (int)Offset.X * 3, y + (int)Offset.Y * 3].counter == WL || Grid.grid[x + (int)Offset.X, y + (int)Offset.Y].counter == WH) && Grid.grid[x + (int)Offset.X * 4, y + (int)Offset.Y * 4].active == false)
+                                {
+                                    if ((Grid.grid[x + (int)Offset.X, y + (int)Offset.Y].counter == WL && Grid.grid[x + (int)Offset.X * 3, y + (int)Offset.Y * 3].counter == WH) || (Grid.grid[x + (int)Offset.X, y + (int)Offset.Y].counter == WH && Grid.grid[x + (int)Offset.X * 3, y + (int)Offset.Y * 3].counter == WL) || (Grid.grid[x + (int)Offset.X, y + (int)Offset.Y].counter == WL && Grid.grid[x + (int)Offset.X * 3, y + (int)Offset.Y * 3].counter == WL))
+                                        Grid.grid[x, y].SquareScoreBlack = 3;
+                                    if (Grid.grid[x + (int)Offset.X, y + (int)Offset.Y].counter == WH && Grid.grid[x + (int)Offset.X * 3, y + (int)Offset.Y * 3].counter == WH)
+                                        Grid.grid[x, y].SquareScoreBlack = 4;
+
+                                    SinglePlayerMoved = true;
+                                }
+
+                            }
                         }
 
-                        try
+                        if(Grid.grid[x,y].SquareScoreBlack > HighestCurrentMove)
                         {
-                            if (Grid.grid[x - 2, y - 2].PossibleMoveB == true && turn == true)
-                            {
-                                Grid.grid[x - 2, y - 2].counter = Grid.grid[x, y].counter;
-                                Grid.grid[x - 2, y - 2].active = true;
-                                Grid.grid[x - 1, y - 1].active = false;
-                                Grid.grid[x - 1, y - 1].counter = null;
-                                Grid.grid[x, y].counter = null;
-                                Grid.grid[x, y].active = false;
-
-                                turn = false;
-                            }
-                            else if (Grid.grid[x + 2, y - 2].PossibleMoveB == true && turn == true)
-                            {
-                                Grid.grid[x + 2, y - 2].counter = Grid.grid[x, y].counter;
-                                Grid.grid[x + 2, y - 2].active = true;
-                                Grid.grid[x + 1, y - 1].active = false;
-                                Grid.grid[x + 1, y - 1].counter = null;
-                                Grid.grid[x, y].counter = null;
-                                Grid.grid[x, y].active = false;
-
-                                turn = false;
-                            }
-
                             
-                        }
-                        catch { }//BL & BH Taking 1 counter
+                            
+                            HighestCurrentMove = Grid.grid[x, y].SquareScoreBlack;
 
-                        if (Grid.grid[x, y].counter == BH)
-                        {
-                            try
+                            if(HighestCurrentMove<=2)
+                                HighestMoveLand = new Vector2(x + (int)Offset.X * 2, y + (int)Offset.Y * 2);
+                            else
+                                HighestMoveLand = new Vector2(x + (int)Offset.X * 4, y + (int)Offset.Y * 4);
+
+                            if (Grid.grid[x,y].SquareScoreBlack <= 2)
                             {
-                                if (Grid.grid[x - 2, y + 2].PossibleMoveB == true && turn == true)
-                                {
-                                    Grid.grid[x - 2, y + 2].counter = Grid.grid[x, y].counter;
-                                    Grid.grid[x - 2, y + 2].active = true;
-                                    Grid.grid[x - 1, y + 1].active = false;
-                                    Grid.grid[x - 1, y + 1].counter = null;
-                                    Grid.grid[x, y].counter = null;
-                                    Grid.grid[x, y].active = false;
-
-                                    turn = false;
-                                }
-                                else if (Grid.grid[x + 2, y + 2].PossibleMoveB == true && turn == true)
-                                {
-                                    Grid.grid[x + 2, y + 2].counter = Grid.grid[x, y].counter;
-                                    Grid.grid[x + 2, y + 2].active = true;
-                                    Grid.grid[x + 1, y + 1].active = false;
-                                    Grid.grid[x + 1, y + 1].counter = null;
-                                    Grid.grid[x, y].counter = null;
-                                    Grid.grid[x, y].active = false;
-
-                                    turn = false;
-                                }
+                                Remove = new Vector2(x + (int)Offset.X, y + (int)Offset.Y);
+                                WhiteTaken++;
                             }
-                            catch { }
-                        }//BH Taking 1 counter
-                        //BL Single Moves for L & H
-                        try
-                        {
-                            if (Grid.grid[x + 1, y - 1].PossibleMoveB == true && turn == true)
+                            if (Grid.grid[x, y].SquareScoreBlack > 2)
                             {
-                                Grid.grid[x + 1, y - 1].counter = Grid.grid[x, y].counter;
-                                Grid.grid[x + 1, y - 1].active = true;
-                                Grid.grid[x, y].counter = null;
-                                Grid.grid[x, y].active = false;
-
-                                turn = false;
-                            }
-                            else if (Grid.grid[x - 1, y - 1].PossibleMoveB == true && turn == true)
-                            {
-                                Grid.grid[x - 1, y - 1].counter = Grid.grid[x, y].counter;
-                                Grid.grid[x - 1, y - 1].active = true;
-                                Grid.grid[x, y].counter = null;
-                                Grid.grid[x, y].active = false;
-
-                                turn = false;
+                                Remove = new Vector2(x + (int)Offset.X, y + (int)Offset.Y);
+                                Remove2 = new Vector2(x + (int)Offset.X * 3, y + (int)Offset.Y * 3);
+                                WhiteTaken += 2;
                             }
                         }
-                        catch { }
-                        if (Grid.grid[x, y].counter == BH)//BH Single Moves
-                        {
-                            try
-                            {
-                                if (Grid.grid[x - 1, y + 1].PossibleMoveB == true && turn == true)
-                                {
-                                    Grid.grid[x - 1, y + 1].counter = Grid.grid[x, y].counter;
-                                    Grid.grid[x - 1, y + 1].active = true;
-                                    Grid.grid[x, y].counter = null;
-                                    Grid.grid[x, y].active = false;
 
-                                    turn = false;
-                                }
-                                else if (Grid.grid[x + 1, y + 1].PossibleMoveB == true && turn == true)
-                                {
-                                    Grid.grid[x + 1, y + 1].counter = Grid.grid[x, y].counter;
-                                    Grid.grid[x + 1, y + 1].active = true;
-                                    Grid.grid[x, y].counter = null;
-                                    Grid.grid[x, y].active = false;
+                        if (RunThrough == 0)
+                            Offset = new Vector2(-1, 1);
+                        if (RunThrough == 1)
+                            Offset = new Vector2(1, -1);
+                        if (RunThrough == 2)
+                            Offset = new Vector2(-1, -1);
 
-                                    turn = false;
-                                }
-                            }
-                            catch { }
-                        }
-                        
+                        RunThrough++;
                     }
-                    try
-                    {
-                        if (Grid.grid[x - 1, y - 1].Y == 0 && Grid.grid[x - 1, y - 1].counter == BL)
-                        {
-                            Grid.grid[x - 1, y - 1].counter = BH;
-                        }
-                    }
-                    catch { }//Upgrade to BH
                 }
             }
-           */ 
 
+            int Numberof0 = 0, Numberof1 = 0, Numberof2 = 0, Numberof3 = 0, Numberof4 = 0;
+            for (int y = 0; y < rows; y++)
+            {
+                for (int x = 0; x < rows; x++)
+                {
+                    Console.WriteLine("Location: " + x + ", " + y + " Square Score: " + Grid.grid[x, y].SquareScoreBlack);
+
+                    if (Grid.grid[x, y].SquareScoreBlack == 0)
+                        Numberof0++;
+                    if (Grid.grid[x, y].SquareScoreBlack == 1)
+                        Numberof1++;
+                    if (Grid.grid[x, y].SquareScoreBlack == 2)
+                        Numberof2++;
+                    if (Grid.grid[x, y].SquareScoreBlack == 3)
+                        Numberof3++;
+                    if (Grid.grid[x, y].SquareScoreBlack == 4)
+                        Numberof4++;
+                }
+            }
+
+            int HighestScore = 0;
+            Vector2 HighestMove = new Vector2(0, 0);
+
+            for (int y = 0; y < rows; y++)
+            {
+                for (int x = 0; x < rows; x++)
+                {
+                    if(Grid.grid[x,y].SquareScoreBlack > HighestScore)
+                    {
+                        HighestScore = Grid.grid[x, y].SquareScoreBlack;
+                        HighestMove = new Vector2(x, y);
+                    }
+                }
+            }
+
+            Vector2 MoveMagnitude = new Vector2(HighestMoveLand.X - HighestMove.X, HighestMoveLand.Y - HighestMove.Y);
+
+            if(Remove2 == new Vector2(-1,-1) && HighestScore > 0)
+            {
+                Grid.grid[(int)HighestMoveLand.X, (int)HighestMoveLand.Y].counter = Grid.grid[(int)HighestMove.X, (int)HighestMove.Y].counter;
+                Grid.grid[(int)Remove.X, (int)Remove.Y].counter = null;
+                Grid.grid[(int)Remove.X, (int)Remove.Y].active = false;
+                Grid.grid[(int)HighestMoveLand.X, (int)HighestMoveLand.Y].active = true;
+                Grid.grid[(int)HighestMove.X, (int)HighestMove.Y].active = false;
+                Grid.grid[(int)HighestMove.X, (int)HighestMove.Y].counter = null;
+
+                SinglePlayerMoved = true;
+            }
+            else if (Remove2 != new Vector2(-1, -1) && HighestScore > 0)
+            {
+                Grid.grid[(int)HighestMoveLand.X, (int)HighestMoveLand.Y].counter = Grid.grid[(int)HighestMove.X, (int)HighestMove.Y].counter;
+                Grid.grid[(int)Remove.X, (int)Remove.Y].counter = null;
+                Grid.grid[(int)Remove.X, (int)Remove.Y].active = false;
+                Grid.grid[(int)Remove2.X, (int)Remove2.Y].counter = null;
+                Grid.grid[(int)Remove2.X, (int)Remove2.Y].active = false;
+                Grid.grid[(int)HighestMoveLand.X, (int)HighestMoveLand.Y].active = true;
+                Grid.grid[(int)HighestMove.X, (int)HighestMove.Y].active = false;
+                Grid.grid[(int)HighestMove.X, (int)HighestMove.Y].counter = null;
+
+                SinglePlayerMoved = true;
+            }
+
+            if (HighestCurrentMove == 0 && SinglePlayerMoved == false)
+            {
+                Random RandomCo = new Random();
+
+                while (SinglePlayerMoved == false)
+                {
+                    int x = RandomCo.Next(0, 8);
+                    int y = RandomCo.Next(0, 8);
+
+                    
+                    //for (int y = 0; y < rows; y++)
+                    // {
+                    // for (int x = 0; x < rows; x++)
+                    //{
+                    if ((Grid.grid[x, y].counter == BL || Grid.grid[x, y].counter == BH))
+                    {
+                        Random Choice = new Random();
+
+
+                        int choice = Choice.Next(1, 4);
+
+                        if (x + 1 <= rows && y - 1 >= 0)
+                            if (Grid.grid[x + 1, y - 1].active == false)
+                            {
+                                Grid.grid[x, y].active = false;
+                                Grid.grid[x + 1, y - 1].active = true;
+                                Grid.grid[x + 1, y - 1].counter = Grid.grid[x, y].counter;
+                                Grid.grid[x, y].counter = null;
+
+                                SinglePlayerMoved = true;
+                            }
+                        if (x - 1 >= 0 && y - 1 >= 0)
+                            if (Grid.grid[x - 1, y - 1].active == false && SinglePlayerMoved == false)
+                            {
+                                Grid.grid[x, y].active = false;
+                                Grid.grid[x - 1, y - 1].active = true;
+                                Grid.grid[x - 1, y - 1].counter = Grid.grid[x, y].counter;
+                                Grid.grid[x, y].counter = null;
+
+                                SinglePlayerMoved = true;
+                            }
+                        if (x - 1 >= 0 && y + 1 <= rows)
+                            if (Grid.grid[x, y].counter == BH && Grid.grid[x - 1, y + 1].active == false && SinglePlayerMoved == false)
+                            {
+                                Grid.grid[x, y].active = false;
+                                Grid.grid[x - 1, y + 1].active = true;
+                                Grid.grid[x - 1, y + 1].counter = Grid.grid[x, y].counter;
+                                Grid.grid[x, y].counter = null;
+
+                                SinglePlayerMoved = true;
+                            }
+                        if (x + 1 <= rows && y + 1 <= rows)
+                            if (Grid.grid[x, y].counter == BH && Grid.grid[x + 1, y + 1].active == false && SinglePlayerMoved == false)
+                            {
+                                Grid.grid[x, y].active = false;
+                                Grid.grid[x + 1, y + 1].active = true;
+                                Grid.grid[x + 1, y + 1].counter = Grid.grid[x, y].counter;
+                                Grid.grid[x, y].counter = null;
+
+                                SinglePlayerMoved = true;
+
+                            }
+
+                    }
+                }
+                    //} 
+               // }
+            }
+            if (SinglePlayerMoved == true)
+                turn = false;
+
+            for (int x = 0; x < rows; x++)
+            {
+                if(Grid.grid[x, 0].counter == BL)
+                {
+                    Grid.grid[x, 0].counter = BH;
+                }
+            }
+            PossibleMoves();
         }
+           
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            ///Scoring Squares/////////////////////////////////////////////////////////////
+
+            /*for (int xs = 0; xs < +cols; xs++)
+            {
+                for (int ys = 0; ys < cols; ys++)
+                {
+                    Grid.grid[xs, ys].SquareScoreBlack = 0;
+                }
+            }
+
+            for (int x = 0; x <+ cols; x++)
+            {
+                for (int y = 0; y <+ cols; y++)
+                {
+                    if (Grid.grid[x, y].counter == BL || Grid.grid[x, y].counter == BH)
+                    {
+                        int RunThrough = 0;
+                        while (RunThrough != 4)
+                        {
+                            Vector2 Indent = new Vector2(1, -1);
+
+                            if (x + Indent.X * 3 + (2 * Indent.X) <= cols && x + Indent.X * 3 + (2 * Indent.X) >= 0 && y + Indent.Y * 3 <= cols && y + Indent.Y * 3 >= 0)///cover if statement
+                            {
+                                /// End Numbers Need to be square rooted to find average
+                                ///Scores single jump over a Higher counter ///Needs to look for WH coming from black side
+                                if ((Grid.grid[x + (int)Indent.X, y + (int)Indent.Y].counter == WH || Grid.grid[x + (int)Indent.X, y + (int)Indent.Y].counter == WL) && Grid.grid[x + ((int)Indent.X * 2), y + ((int)Indent.Y * 2)].active == false)
+                                {
+                                    if ((Indent.Y < 0 && Grid.grid[x, y].counter == BL) || Grid.grid[x, y].counter == BH)
+                                    {
+                                        Grid.grid[x + ((int)Indent.X * 2), y + ((int)Indent.Y * 2)].SquareScoreBlack = Grid.grid[x + ((int)Indent.X * 2), y + ((int)Indent.Y * 2)].SquareScoreBlack + 40;
+                                        if (Grid.grid[x + (int)Indent.X, y + (int)Indent.Y].counter == WH)
+                                            Grid.grid[x + ((int)Indent.X * 2), y + ((int)Indent.Y * 2)].SquareScoreBlack += 5;
+                                        if ((Grid.grid[x + (int)Indent.X * 3, y + (int)Indent.Y * 3].counter == WL || Grid.grid[x + (int)Indent.X * 3, y + (int)Indent.Y * 3].counter == WH) && Grid.grid[x + (int)Indent.X * 3 + (int)Indent.X * 2, y + (int)Indent.Y * 3].active == false)
+                                            Grid.grid[x + ((int)Indent.X * 2), y + ((int)Indent.Y * 2)].SquareScoreBlack -= -45;
+                                        if ((Grid.grid[x + (int)Indent.X * 3 + (int)Indent.X * 2, y + (int)Indent.Y * 3].counter == WH || Grid.grid[x + (int)Indent.X * 3 + (int)Indent.X * 2, y + (int)Indent.Y * 3].counter == WL) && Grid.grid[x + (int)Indent.X * 3, y + (int)Indent.Y * 3].active == false)
+                                            Grid.grid[x + ((int)Indent.X * 2), y + ((int)Indent.Y * 2)].SquareScoreBlack -= -45;
+                                        if ((Grid.grid[x + (int)Indent.X * 3 + (int)Indent.X * 2, y + (int)Indent.Y * 3].counter == WH || Grid.grid[x + (int)Indent.X * 3 + (int)Indent.X * 2, y + (int)Indent.Y * 3].counter == WL) && (Grid.grid[x + (int)Indent.X * 3, y + (int)Indent.Y * 3].counter == WL || Grid.grid[x + (int)Indent.X * 3, y + (int)Indent.Y * 3].counter == WH))
+                                            Grid.grid[x + ((int)Indent.X * 2), y + ((int)Indent.Y * 2)].SquareScoreBlack -= -45;
+                                    }
+                                } 
+                            }
+                            if (x + Indent.X * 5 + (2 * Indent.X) <= cols && x + Indent.X * 5 + (2 * Indent.X) >= 0 && y + Indent.Y * 5 <= cols && y + Indent.Y * 5 >= 0)
+                            {
+                                if ((Grid.grid[x + (int)Indent.X, y + (int)Indent.Y].counter == WH || Grid.grid[x + (int)Indent.X, y + (int)Indent.Y].counter == WL) && Grid.grid[x + ((int)Indent.X * 2), y + ((int)Indent.Y * 2)].active == false && (Grid.grid[x + ((int)Indent.X * 3), y + ((int)Indent.Y * 3)].counter == WL || Grid.grid[x + ((int)Indent.X * 3), y + ((int)Indent.Y * 3)].counter == WH) && Grid.grid[x + ((int)Indent.X * 4), y + ((int)Indent.Y * 4)].active == false)
+                                {
+                                    if ((Indent.Y < 0 && Grid.grid[x, y].counter == BL) || Grid.grid[x, y].counter == BH)
+                                    {
+                                        Grid.grid[x + ((int)Indent.X * 4), y + ((int)Indent.Y * 4)].SquareScoreBlack = Grid.grid[x + ((int)Indent.X * 4), y + ((int)Indent.Y * 4)].SquareScoreBlack + 80;
+                                        if (Grid.grid[x + (int)Indent.X, y + (int)Indent.Y].counter == WH)
+                                            Grid.grid[x + ((int)Indent.X * 4), y + ((int)Indent.Y * 4)].SquareScoreBlack += 5;
+                                        if (Grid.grid[x + (int)Indent.X * 2, y + (int)Indent.Y * 2].counter == WH)
+                                            Grid.grid[x + ((int)Indent.X * 4), y + ((int)Indent.Y * 4)].SquareScoreBlack += 5;
+                                        if ((Grid.grid[x + (int)Indent.X * 5, y + (int)Indent.Y * 5].counter == WL || Grid.grid[x + (int)Indent.X * 5, y + (int)Indent.Y * 5].counter == WH) && Grid.grid[x + (int)Indent.X * 5 + (int)Indent.X * 2, y + (int)Indent.Y * 5].active == false)
+                                            Grid.grid[x + ((int)Indent.X * 4), y + ((int)Indent.Y * 4)].SquareScoreBlack -= -45;
+                                        if ((Grid.grid[x + (int)Indent.X * 5 + (int)Indent.X * 2, y + (int)Indent.Y * 5].counter == WH || Grid.grid[x + (int)Indent.X * 5 + (int)Indent.X * 2, y + (int)Indent.Y * 5].counter == WL) && Grid.grid[x + (int)Indent.X * 5, y + (int)Indent.Y * 5].active == false)
+                                            Grid.grid[x + ((int)Indent.X * 4), y + ((int)Indent.Y * 4)].SquareScoreBlack -= -45;
+                                        if ((Grid.grid[x + (int)Indent.X * 5 + (int)Indent.X * 2, y + (int)Indent.Y * 5].counter == WH || Grid.grid[x + (int)Indent.X * 5 + (int)Indent.X * 2, y + (int)Indent.Y * 5].counter == WL) && (Grid.grid[x + (int)Indent.X * 5, y + (int)Indent.Y * 5].counter == WL || Grid.grid[x + (int)Indent.X * 5, y + (int)Indent.Y * 5].counter == WH))
+                                            Grid.grid[x + ((int)Indent.X * 4), y + ((int)Indent.Y * 4)].SquareScoreBlack -= -45;
+                                    }
+                                }
+                            }
+                            if (Grid.grid[x + (int)Indent.X, y + (int)Indent.Y].active == false)
+                            {
+                                if ((Indent.Y < 0 && Grid.grid[x, y].counter == BL) || Grid.grid[x, y].counter == BH)
+                                {
+                                    if (Grid.grid[x + (int)Indent.X * 2, y + (int)Indent.Y * 2].counter == WL || Grid.grid[x + (int)Indent.X * 2, y + (int)Indent.Y * 2].counter == WH)
+                                        Grid.grid[x + (int)Indent.X, y + (int)Indent.Y].SquareScoreBlack -= 45;
+                                    if (Grid.grid[(x + (int)Indent.X * 2) - (int)Indent.X * 2, y + (int)Indent.Y * 2].counter == WL || Grid.grid[x + (int)Indent.X * 2, y + (int)Indent.Y * 2].counter == WH)
+                                        Grid.grid[x + (int)Indent.X, y + (int)Indent.Y].SquareScoreBlack -= 45;
+                                    if (Grid.grid[x + (int)Indent.X * 2, y + (int)Indent.Y * 2].counter == WH && Grid.grid[x, y - (int)Indent.Y * 2].active == false)
+                                        Grid.grid[x + (int)Indent.X, y + (int)Indent.Y].SquareScoreBlack -= 45;
+                                    if (Grid.grid[x + (int)Indent.X, y + (int)Indent.Y].active == false && Grid.grid[x + (int)Indent.X * 2, y + (int)Indent.Y * 2].active == false)
+                                        Grid.grid[x + (int)Indent.X, y + (int)Indent.Y].SquareScoreBlack += 5;
+                                }
+                            }
+
+                            if (RunThrough == 1)
+                                Indent = new Vector2(-1, 1);
+                            if (RunThrough == 2)
+                                Indent = new Vector2(-1, -1);
+                            if (RunThrough == 3)
+                                Indent = new Vector2(1, 1);
+                        }
+
+
+
+                    }
+                }
+            }*/
+        
     
 
         public void SetBackground()
@@ -2312,7 +2066,7 @@ namespace My_2019_AS_Res
             //S.SelectedY = SelectedY;
             
 
-            string test = SelectedCounter2.X + "~" + SelectedCounter2.Y + "~" + SelectedX + "~" + SelectedY + "~" + cols + "~" + BlackCounterRows + "~" + WhiteCounterRows;
+            string test = SelectedCounter2.X + "~" + SelectedCounter2.Y + "~" + SelectedX + "~" + SelectedY + "~" + cols + "~" + BlackCounterRows + "~" + WhiteCounterRows + "~" + ShowPossibleB + "~" + ShowPossibleW;
 
             
 

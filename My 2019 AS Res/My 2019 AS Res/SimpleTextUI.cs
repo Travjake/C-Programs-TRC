@@ -36,7 +36,9 @@ namespace A1r.SimpleTextUI
         }
         public virtual void Draw(SpriteBatch batch, SpriteFont font, Color? color = null)
         {
-            batch.DrawString(font, Caption, Position, color ?? Color);
+            Vector2 temp = Position;
+            temp.Y += 135;
+            batch.DrawString(font, Caption, temp, color ?? Color);
         }
         public virtual string GetValue() { return Caption; }
         public virtual void SetValue(string text) { Caption = text; }
@@ -54,8 +56,9 @@ namespace A1r.SimpleTextUI
         }
         public override void Draw(SpriteBatch batch, SpriteFont font, Color? color = null)
         {
-            batch.DrawString(font, Caption, Position, color ?? Color);
-            batch.DrawString(font, Text, TextPosition, color ?? Color);
+            Vector2 temp = new Vector2(0, 100);
+            batch.DrawString(font, Caption, Position + temp, color ?? Color);
+            batch.DrawString(font, Text, TextPosition + temp, color ?? Color);
         }
         public virtual void Update(bool left = false) { }
         public override string GetValue() { return Text; }
@@ -139,7 +142,7 @@ namespace A1r.SimpleTextUI
 
     public class SimpleTextUI : DrawableGameComponent
     {
-        public Color TextColor = Color.LightGreen;
+        public Color TextColor = Color.Black;
         public int Width = 100;
         public Alignment Align
         {
@@ -184,19 +187,22 @@ namespace A1r.SimpleTextUI
         Vector2 padding;
         int index;
         TextElement selectedElement;
+        Texture2D Back;
 
         // Constructors
-        public SimpleTextUI(Game game, SpriteFont font) : base(game)
+        public SimpleTextUI(Game game, Texture2D Background, SpriteFont font) : base(game)
         {
+            Back = Background;
             batch = new SpriteBatch(Game.GraphicsDevice);
             padding = new Vector2(100);
             _font = font;
-            selectedElement = new TextElement("", Color.LimeGreen);
+            selectedElement = new TextElement("", Color.DarkGray);
         }
-        public SimpleTextUI(Game game, SpriteFont font, string[] items) : this(game, font)
+        public SimpleTextUI(Game game, Texture2D Background, SpriteFont font, string[] items) : this(game, Background, font)
         {
             if (items != null)
             {
+                Back = Background;
                 var l = items.Length;
                 var newItems = new TextElement[l];
                 for (int i = 0; i < l; i++)
@@ -204,8 +210,9 @@ namespace A1r.SimpleTextUI
                 SetItems(newItems);
             }
         }
-        public SimpleTextUI(Game game, SpriteFont font, TextElement[] items) : this(game, font)
+        public SimpleTextUI(Game game, Texture2D Background, SpriteFont font, TextElement[] items) : this(game, Background, font)
         {
+            Back = Background;
             if (items != null)
                 SetItems(items);
         }
@@ -341,6 +348,7 @@ namespace A1r.SimpleTextUI
         public override void Draw(GameTime gameTime)
         {
             batch.Begin();
+            batch.Draw(Back, new Rectangle(0,0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height), Color.White);
             for (int i = 0; i < elements.Length; i++)
             {
                 var item = elements[i];
